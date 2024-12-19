@@ -7,6 +7,7 @@ const int scrWidth = 1600;
 const int scrHeight = 900;
 const int playerWidth = 100;
 const int playerHeight = playerWidth * 2;
+const int playerSpeed = 10;
 
 // -- player logic -- @@TODO: render triangle, keyboard input to update player position
 struct playerTriangleVertices {
@@ -32,6 +33,11 @@ void drawPlayer() {
 }
 
 void processInput() {
+    if (IsKeyDown(KEY_W) || IsKeyDown(KEY_UP))      playerPosition.y -= playerSpeed;
+    if (IsKeyDown(KEY_A) || IsKeyDown(KEY_LEFT))    playerPosition.x -= playerSpeed;
+    if (IsKeyDown(KEY_S) || IsKeyDown(KEY_DOWN))    playerPosition.y += playerSpeed;
+    if (IsKeyDown(KEY_D) || IsKeyDown(KEY_RIGHT))   playerPosition.x += playerSpeed;
+    updatePlayerPosition();
 }
 
 // -- START HERE -- 
@@ -40,9 +46,9 @@ int main(void) {
     SetTargetFPS(60);
     while (!WindowShouldClose())
     {
+        processInput();
         BeginDrawing();
             ClearBackground(RAYWHITE);
-            updatePlayerPosition();
             drawPlayer();
         EndDrawing();
     }
