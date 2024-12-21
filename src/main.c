@@ -11,8 +11,8 @@
 // -- DEFINITIONS --
 #define SCRWIDTH      1600
 #define SCRHEIGHT     900
-#define SHIPWIDTH     100 // @@NOTE: the ship's width and height are arbitrary
-#define SHIPHEIGHT    200
+#define SHIPWIDTH     50 // @@NOTE: the ship's width and height are arbitrary
+#define SHIPHEIGHT    150
 #define SHIPSPEED     10
 #define ROTATIONDELTA 10
 
