@@ -113,6 +113,9 @@ void ProcessInput() {
     // player acceleration
     if (IsKeyDown(KEY_W) || IsKeyDown(KEY_UP)) {    // step on the pedal!
         player.acceleration += 0.05f;
+        if (player.acceleration > SHIPMAXACCELERATION) {
+            player.acceleration = SHIPMAXACCELERATION;
+        }
     } else {
         if (player.acceleration > 0.0f) {           // slow down there bucko
             player.acceleration -= 0.05f;
@@ -122,13 +125,9 @@ void ProcessInput() {
     }
 
     // player position
-    player.position.x += player.speed.x * player.acceleration;
-    player.position.y -= player.speed.y * player.acceleration;
-
-    // player vertices
-    player.vertices.v1 = (Vector2) {player.position.x, player.position.y};
-    player.vertices.v2 = (Vector2) {player.position.x - SHIPWIDTH, player.position.y + SHIPHEIGHT};
-    player.vertices.v3 = (Vector2) {player.position.x + SHIPWIDTH, player.position.y + SHIPHEIGHT};
+    player.position.x += (player.speed.x * player.acceleration > SHIPMAXSPEED) ? SHIPMAXSPEED : player.speed.x * player.acceleration;
+    player.position.y -= (player.speed.y * player.acceleration > SHIPMAXSPEED) ? SHIPMAXSPEED : player.speed.y * player.acceleration;
+    MovePlayer();
 }
 
 
