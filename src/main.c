@@ -38,6 +38,7 @@ Player player;
 
 // -- FUNCTIONS -- 
 void InitPlayer();
+void MovePlayer();
 void Init();
 void ProcessInput();
 void Draw();
@@ -59,12 +60,27 @@ int main(void) {
 // -- FUNCTION IMPLEMENTATION --
 void InitPlayer() {
     player.position         = (Vector2) {SCRWIDTH/2.0f, SCRHEIGHT/2.0f};
-    player.vertices.v1      = (Vector2) {player.position.x, player.position.y};
-    player.vertices.v2      = (Vector2) {player.position.x - SHIPWIDTH, player.position.y + SHIPHEIGHT};
-    player.vertices.v3      = (Vector2) {player.position.x + SHIPWIDTH, player.position.y + SHIPHEIGHT};
+    MovePlayer();
     player.speed            = (Vector2) {0.0f, 0.0f};
     player.acceleration     =  0.0f;
     player.angle            =  0.0f;
+}
+
+void MovePlayer() {
+    player.vertices.v1 = (Vector2) {
+        player.position.x + sinf(player.angle * DEG2RAD) * SHIPHEIGHT,
+        player.position.y - cosf(player.angle * DEG2RAD) * SHIPHEIGHT
+    };
+
+    player.vertices.v2 = (Vector2) {
+        player.position.x - cosf(player.angle * DEG2RAD) * SHIPWIDTH,
+        player.position.y - sinf(player.angle * DEG2RAD) * SHIPWIDTH 
+    };
+
+    player.vertices.v3 = (Vector2) {
+        player.position.x + cosf(player.angle * DEG2RAD) * SHIPWIDTH,
+        player.position.y + sinf(player.angle * DEG2RAD) * SHIPWIDTH 
+    };
 }
 
 void Init() {
