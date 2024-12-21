@@ -62,7 +62,7 @@ void Init() {
     player.position         = (Vector2) {SCRWIDTH/2.0f, SCRHEIGHT/2.0f};
     player.vertices.v1      = (Vector2) {player.position.x, player.position.y};
     player.vertices.v2      = (Vector2) {player.position.x - SHIPWIDTH, player.position.y + SHIPHEIGHT};
-    player.vertices.v2      = (Vector2) {player.position.x + SHIPWIDTH, player.position.y + SHIPHEIGHT};
+    player.vertices.v3      = (Vector2) {player.position.x + SHIPWIDTH, player.position.y + SHIPHEIGHT};
     player.speed            = 10.0f;
     player.acceleration     =  0.0f;
     player.angle            =  0.0f;
@@ -83,7 +83,9 @@ void ProcessInput() {
 void Draw() {
     BeginDrawing();
         ClearBackground(RAYWHITE);
+
         // draw player/ship
-    
+        DrawTriangle(player.vertices.v1, player.vertices.v2, player.vertices.v3, MAROON);
+
     EndDrawing();
 }
