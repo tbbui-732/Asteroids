@@ -69,23 +69,30 @@ void Init() {
 }
 
 void ProcessInput() {
-    // update rotation angles
+    // rotation angles
     if (IsKeyDown(KEY_A) || IsKeyDown(KEY_LEFT))
         player.angle -= ROTATIONDELTA;
     if (IsKeyDown(KEY_D) || IsKeyDown(KEY_RIGHT))
         player.angle += ROTATIONDELTA;
 
-    // update player acceleration
-    if (IsKeyDown(KEY_W) || IsKeyDown(KEY_UP))  // step on the pedal!
+    // player acceleration
+    if (IsKeyDown(KEY_W) || IsKeyDown(KEY_UP)) {    // step on the pedal!
         player.acceleration += 0.05f;
-    else {
-        if (player.acceleration > 0.0f) {       // slow down there bucko
-            player.acceleration -= 0.03f;
+    } else {
+        if (player.acceleration > 0.0f) {           // slow down there bucko
+            player.acceleration -= 0.05f;
         } else {
             player.acceleration = 0.0f;
         }
     }
-    
+
+    // player position
+    player.position.y -= player.speed + player.acceleration * 5.0f;
+
+    // player vertices
+    player.vertices.v1 = (Vector2) {player.position.x, player.position.y};
+    player.vertices.v2 = (Vector2) {player.position.x - SHIPWIDTH, player.position.y + SHIPHEIGHT};
+    player.vertices.v3 = (Vector2) {player.position.x + SHIPWIDTH, player.position.y + SHIPHEIGHT};
 }
 
 
