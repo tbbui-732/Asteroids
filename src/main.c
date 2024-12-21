@@ -102,9 +102,9 @@ void ProcessInput() {
 
     // rotation angles
     if (IsKeyDown(KEY_A) || IsKeyDown(KEY_LEFT))
-        player.angle -= ROTATIONDELTA;
+        player.angle -= ROTATIONSPEED;
     if (IsKeyDown(KEY_D) || IsKeyDown(KEY_RIGHT))
-        player.angle += ROTATIONDELTA;
+        player.angle += ROTATIONSPEED;
 
     // player speed @@NOTE: Why do we need to do this?
     player.speed.x = sin(player.angle * DEG2RAD) * SHIPSPEED;
