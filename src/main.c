@@ -13,9 +13,6 @@
 #define SCRHEIGHT   900
 #define SHIPWIDTH   100 // @@NOTE: the ship's width and height are arbitrary
 #define SHIPHEIGHT  200
-#ifndef PI
-    #define PI          3.14159265359f
-#endif
 
 // -- STRUCTS --
 typedef struct PlayerVertices {
@@ -31,6 +28,9 @@ typedef struct Player {
     float           acceleration;
     float           angle;
 } Player;
+
+// -- GLOBAL VARIABLES -- 
+Player player;
 
 // -- FUNCTIONS -- 
 void Init();
@@ -53,8 +53,18 @@ int main(void) {
 
 // -- FUNCTION IMPLEMENTATION --
 void Init() {
+    // -- window definition --
     InitWindow(SCRWIDTH, SCRHEIGHT, "ASTEROIDS");
     SetTargetFPS(60);
+
+    // -- initialize player --
+    player.position         = (Vector2) {SCRWIDTH/2.0f, SCRHEIGHT/2.0f};
+    player.vertices.v1      = (Vector2) {player.position.x, player.position.y};
+    player.vertices.v2      = (Vector2) {player.position.x - SHIPWIDTH, player.position.y + SHIPHEIGHT};
+    player.vertices.v2      = (Vector2) {player.position.x + SHIPWIDTH, player.position.y + SHIPHEIGHT};
+    player.speed            = 10.0f;
+    player.acceleration     =  0.0f;
+    player.angle            =  0.0f;
 }
 
 void ProcessInput() {
