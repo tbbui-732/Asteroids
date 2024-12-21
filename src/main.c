@@ -9,10 +9,11 @@
 #include "../include/raylib.h"
 
 // -- DEFINITIONS --
-#define SCRWIDTH    1600
-#define SCRHEIGHT   900
-#define SHIPWIDTH   100 // @@NOTE: the ship's width and height are arbitrary
-#define SHIPHEIGHT  200
+#define SCRWIDTH      1600
+#define SCRHEIGHT     900
+#define SHIPWIDTH     100 // @@NOTE: the ship's width and height are arbitrary
+#define SHIPHEIGHT    200
+#define ROTATIONDELTA 10
 
 // -- STRUCTS --
 typedef struct PlayerVertices {
@@ -68,11 +69,21 @@ void Init() {
 }
 
 void ProcessInput() {
+    // update rotation angles
+    if (IsKeyDown(KEY_A) || IsKeyDown(KEY_LEFT))
+        player.angle -= ROTATIONDELTA;
+    if (IsKeyDown(KEY_D) || IsKeyDown(KEY_RIGHT))
+        player.angle += ROTATIONDELTA;
 
+    // update player acceleration
+    
 }
+
 
 void Draw() {
     BeginDrawing();
-    ClearBackground(RAYWHITE);
+        ClearBackground(RAYWHITE);
+        // draw player/ship
+    
     EndDrawing();
 }
