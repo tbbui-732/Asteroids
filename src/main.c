@@ -9,12 +9,14 @@
 #include "../include/raylib.h"
 
 // -- DEFINITIONS --
-#define SCRWIDTH      1600
-#define SCRHEIGHT     900
-#define SHIPWIDTH     50 // @@NOTE: the ship's width and height are arbitrary
-#define SHIPHEIGHT    150
-#define SHIPSPEED     10
-#define ROTATIONDELTA 10
+#define SCRWIDTH                1600
+#define SCRHEIGHT               900
+#define SHIPWIDTH               50 // @@NOTE: the ship's width and height are arbitrary
+#define SHIPHEIGHT              150
+#define SHIPSPEED               10
+#define SHIPMAXACCELERATION     5
+#define SHIPMAXSPEED            20
+#define ROTATIONSPEED           5
 
 // -- STRUCTS --
 typedef struct PlayerVertices {
