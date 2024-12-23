@@ -176,15 +176,16 @@ void ProcessInput() {
         }
     } else {
         if (player.acceleration > 0.0f) {           // slow down there bucko
-            player.acceleration -= 0.05f;
+            player.acceleration -= 0.03f;
         } else if (player.acceleration < 0.0f) {
             player.acceleration = 0.0f;
         }
     }
 
     // player position
-    player.position.x += player.speed.x * player.acceleration;
-    player.position.y -= player.speed.y * player.acceleration;
+    float deltaTime = GetFrameTime() * 40;
+    player.position.x += player.speed.x * player.acceleration * deltaTime;
+    player.position.y -= player.speed.y * player.acceleration * deltaTime;
 
     WallCollision();
     MovePlayer();
