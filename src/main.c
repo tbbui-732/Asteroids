@@ -9,8 +9,6 @@
 #include "../include/raylib.h"
 
 // -- DEFINITIONS --
-#define SCRWIDTH                1600
-#define SCRHEIGHT               900
 #define SHIPWIDTH               50 // @@NOTE: the ship's width and height are arbitrary
 #define SHIPHEIGHT              150
 #define SHIPSPEED               10
@@ -33,8 +31,16 @@ typedef struct Player {
     float           angle;
 } Player;
 
+
+// @@TODO: Work on this!!!!!!!!!!!!
+typedef struct Screen {
+    int width;
+    int height;
+} Screen;
+
 // -- GLOBAL VARIABLES -- 
 Player player;
+Screen screen;
 
 // -- FUNCTIONS -- 
 void InitPlayer();
@@ -59,7 +65,7 @@ int main(void) {
 
 // -- FUNCTION IMPLEMENTATION --
 void InitPlayer() {
-    player.position         = (Vector2) {SCRWIDTH/2.0f, SCRHEIGHT/2.0f};
+    player.position         = (Vector2) {screen.width/2.0f, screen.height/2.0f};
     MovePlayer();
     player.speed            = (Vector2) {0.0f, 0.0f};
     player.acceleration     =  0.0f;
@@ -85,7 +91,9 @@ void MovePlayer() {
 
 void Init() {
     // -- window definition --
-    InitWindow(SCRWIDTH, SCRHEIGHT, "ASTEROIDS");
+    screen.width = 1600;
+    screen.height = 900;
+    InitWindow(screen.width, screen.height, "ASTEROIDS");
     SetTargetFPS(60);
 
     // -- initialize player --
