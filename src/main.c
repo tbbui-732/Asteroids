@@ -140,7 +140,11 @@ void MovePlayer() {
 void Menu() {
     // @@TODO: Rectangular window with three options: Resume, Settings, Exit
     // Settings: Resolution
-    DrawRectangle(screen.width/4, screen.height/4, screen.width/2, screen.height/2, BLACK);
+    Vector2 topLeft = (Vector2) { screen.width/4.0f, screen.height/4.0f };
+    float padding = 20.0f;
+
+    DrawRectangle(topLeft.x, topLeft.y, screen.width/2, screen.height/2, BLACK);
+    DrawText("Hello", topLeft.x, topLeft.y, 50, WHITE);
 }
 
 void Init() {
