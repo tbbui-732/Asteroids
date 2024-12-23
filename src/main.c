@@ -5,6 +5,7 @@
 
 // -- INCLUDES --
 #include <stdio.h>
+#include <stdlib.h>
 #include <math.h>
 #include "../include/raylib.h"
 
@@ -183,8 +184,10 @@ void ProcessInput() {
     }
 
     // player position
-    player.position.x += (player.speed.x * player.acceleration > SHIPMAXSPEED) ? SHIPMAXSPEED : player.speed.x * player.acceleration;
-    player.position.y -= (player.speed.y * player.acceleration > SHIPMAXSPEED) ? SHIPMAXSPEED : player.speed.y * player.acceleration;
+    player.position.x += (player.speed.x * player.acceleration > SHIPMAXSPEED) 
+        ? SHIPMAXSPEED : player.speed.x * player.acceleration;
+    player.position.y -= (player.speed.y * player.acceleration > SHIPMAXSPEED) 
+        ? SHIPMAXSPEED : player.speed.y * player.acceleration;
     WallCollision();
     MovePlayer();
 }
@@ -193,6 +196,32 @@ void ProcessInput() {
 void Draw() {
     BeginDrawing();
         ClearBackground(RAYWHITE);
+
+        // @@NOTE: debug screen for testing purposes only!
+        char angleBuffer[128];
+        char speedBuffer[128];
+        char accelBuffer[128];
+        int out;
+        
+        out = snprintf(angleBuffer, 128, "angle (degrees):\t%.0f", player.angle);
+        if (out <= -1) {
+            printf("ERROR: Unable to pass angle value to buffer\n");
+            exit(1);
+        }
+        out = snprintf(speedBuffer, 128, "speed direction:\t(%.0f, %.0f)", player.speed.x, player.speed.y);
+        if (out <= -1) {
+            printf("ERROR: Unable to pass speed value to buffer\n");
+            exit(1);
+        }
+        out = snprintf(accelBuffer, 128, "acceleration:\t%.2f", player.acceleration);
+        if (out <= -1) {
+            printf("ERROR: Unable to pass acceleration value to buffer\n");
+            exit(1);
+        }
+
+        DrawText(angleBuffer, screen.width/25, screen.height/10, 50, MAROON);
+        DrawText(speedBuffer, screen.width/25, screen.height/6,  50, MAROON);
+        DrawText(accelBuffer, screen.width/25, screen.height/4,  50, MAROON);
 
         // draw player/ship
         DrawTriangle(player.vertices.v1, player.vertices.v2, player.vertices.v3, MAROON);
