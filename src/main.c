@@ -103,19 +103,15 @@ void WallCollision() {
     float horizontalSmoothingPad = -SHIPWIDTH*1.55;
 
     if (player.position.x + horizontalPad < 0)                  // left wall
-        //player.position.x = screen.width - offscreenPad;
         player.position.x = screen.width - horizontalSmoothingPad;
 
     else if (player.position.x - horizontalPad > screen.width)  // right wall
-        //player.position.x = 0.0f + offscreenPad;
         player.position.x = 0.0f + horizontalSmoothingPad;
 
     if (player.position.y + verticalPad < 0)                    // top wall
-        //player.position.y = screen.height - offscreenPad;
         player.position.y = screen.height - verticalSmoothingPad;
 
     else if (player.position.y - verticalPad > screen.height)   // bottom wall
-        //player.position.y = 0.0f + offscreenPad;
         player.position.y = 0.0f + verticalSmoothingPad;
 }
 
