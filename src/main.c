@@ -143,6 +143,9 @@ void Init() {
     InitWindow(screen.width, screen.height, "ASTEROIDS");
     SetTargetFPS(60);
 
+    // -- redefine escape key --
+    SetExitKey(KEY_Q);
+
     // -- initialize player --
     InitPlayer();
 }
@@ -152,6 +155,12 @@ void ProcessInput() {
     if (IsKeyDown(KEY_R)) {
         DrawText("RESET", 100, 100, 50, RED);
         InitPlayer();
+        return;
+    }
+
+    // menu
+    if (IsKeyPressed(KEY_ESCAPE)) {
+        DrawText("MENU", 200, 200, 50, BLACK);
         return;
     }
 
