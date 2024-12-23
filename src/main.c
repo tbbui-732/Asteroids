@@ -13,7 +13,7 @@
 #define SHIPWIDTH               50 // @@NOTE: the ship's width and height are arbitrary
 #define SHIPHEIGHT              150
 #define SHIPSPEED               10
-#define SHIPMAXACCELERATION     5
+#define SHIPMAXACCELERATION     2
 #define SHIPMAXSPEED            20
 #define ROTATIONSPEED           5
 #define TRUE                    1
@@ -171,23 +171,21 @@ void ProcessInput() {
 
     // player acceleration
     if (IsKeyDown(KEY_W) || IsKeyDown(KEY_UP)) {    // step on the pedal!
-        player.acceleration += 0.05f;
-        if (player.acceleration > SHIPMAXACCELERATION) {
-            player.acceleration = SHIPMAXACCELERATION;
+        if (player.acceleration <= SHIPMAXACCELERATION) {
+            player.acceleration += 0.05f;
         }
     } else {
         if (player.acceleration > 0.0f) {           // slow down there bucko
             player.acceleration -= 0.05f;
-        } else {
+        } else if (player.acceleration < 0.0f) {
             player.acceleration = 0.0f;
         }
     }
 
     // player position
-    player.position.x += (player.speed.x * player.acceleration > SHIPMAXSPEED) 
-        ? SHIPMAXSPEED : player.speed.x * player.acceleration;
-    player.position.y -= (player.speed.y * player.acceleration > SHIPMAXSPEED) 
-        ? SHIPMAXSPEED : player.speed.y * player.acceleration;
+    player.position.x += player.speed.x * player.acceleration;
+    player.position.y -= player.speed.y * player.acceleration;
+
     WallCollision();
     MovePlayer();
 }
