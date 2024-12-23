@@ -15,6 +15,8 @@
 #define SHIPMAXACCELERATION     5
 #define SHIPMAXSPEED            20
 #define ROTATIONSPEED           5
+#define TRUE                    1
+#define FALSE                   0
 
 // -- STRUCTS --
 typedef struct PlayerVertices {
@@ -48,6 +50,8 @@ void MovePlayer();
 void Init();
 void ProcessInput();
 void Draw();
+void RotateVertex(Vector2* origVector, float* centerX, float* centerY, float* angle);
+void WallCollision();
 
 // -- DRAW -- 
 int main(void) {
@@ -87,6 +91,23 @@ void RotateVertex(Vector2* origVector, float* centerX, float* centerY, float* an
     // translate back
     origVector->x = rx + *centerX;
     origVector->y = ry + *centerY;
+}
+
+void WallCollision() {
+    // @@NOTE: Invoked every time player position is updated
+    // check left and right walls
+    if (player.position.x < 0) {
+        player.position.x = screen.width;
+    } else if (player.position.x > screen.width) {
+        player.position.x = 0.0f;
+    }
+
+    // check top and bottom walls
+    if (player.position.y < 0) {
+        player.position.y = screen.height;
+    } else if (player.position.y > screen.height) {
+        player.position.y = 0.0f;
+    }
 }
 
 void MovePlayer() {
@@ -156,6 +177,7 @@ void ProcessInput() {
     // player position
     player.position.x += (player.speed.x * player.acceleration > SHIPMAXSPEED) ? SHIPMAXSPEED : player.speed.x * player.acceleration;
     player.position.y -= (player.speed.y * player.acceleration > SHIPMAXSPEED) ? SHIPMAXSPEED : player.speed.y * player.acceleration;
+    WallCollision();
     MovePlayer();
 }
 
@@ -169,3 +191,4 @@ void Draw() {
 
     EndDrawing();
 }
+
