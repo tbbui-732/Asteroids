@@ -96,21 +96,26 @@ void RotateVertex(Vector2* origVector, float* centerX, float* centerY, float* an
 void WallCollision() {
     // @@NOTE: Invoked every time player position is updated
     // check left and right walls
-    float verticalPad = SHIPHEIGHT*0.75f;
-    float horizontalPad = SHIPWIDTH*1.75f;
+    float verticalPad   = SHIPHEIGHT*1.15f;
+    float horizontalPad = SHIPWIDTH*1.5f;
+    float verticalSmoothingPad = -SHIPHEIGHT*0.50;
+    float horizontalSmoothingPad = -SHIPWIDTH*1.55;
 
-    if (player.position.x + horizontalPad < 0) {
-        player.position.x = screen.width;
-    } else if (player.position.x - horizontalPad > screen.width) {
-        player.position.x = 0.0f;
-    }
+    if (player.position.x + horizontalPad < 0)                  // left wall
+        //player.position.x = screen.width - offscreenPad;
+        player.position.x = screen.width - horizontalSmoothingPad;
 
-    // check top and bottom walls
-    if (player.position.y + verticalPad < 0) {
-        player.position.y = screen.height;
-    } else if (player.position.y - verticalPad > screen.height) {
-        player.position.y = 0.0f;
-    }
+    else if (player.position.x - horizontalPad > screen.width)  // right wall
+        //player.position.x = 0.0f + offscreenPad;
+        player.position.x = 0.0f + horizontalSmoothingPad;
+
+    if (player.position.y + verticalPad < 0)                    // top wall
+        //player.position.y = screen.height - offscreenPad;
+        player.position.y = screen.height - verticalSmoothingPad;
+
+    else if (player.position.y - verticalPad > screen.height)   // bottom wall
+        //player.position.y = 0.0f + offscreenPad;
+        player.position.y = 0.0f + verticalSmoothingPad;
 }
 
 void MovePlayer() {
