@@ -138,14 +138,18 @@ void MovePlayer() {
 }
 
 void Menu() {
+    // @@TODO: Rectangular window with three options: Resume, Settings, Exit
+    // Settings: Resolution
     DrawRectangle(screen.width/4, screen.height/4, screen.width/2, screen.height/2, BLACK);
 }
 
 void Init() {
-    // -- window definition --
+    // -- screen initialization --
     screen.width = 1600;
     screen.height = 900;
     screen.isMenu = FALSE;
+
+    // -- window definition --
     InitWindow(screen.width, screen.height, "ASTEROIDS");
     SetTargetFPS(60);
 
@@ -209,6 +213,8 @@ void Draw() {
 
         if (screen.isMenu) {
             Menu();
+            EndDrawing();
+            return;
         }
 
         // @@NOTE: debug screen for testing purposes only!
