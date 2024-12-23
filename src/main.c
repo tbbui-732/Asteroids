@@ -39,6 +39,7 @@ typedef struct Player {
 typedef struct Screen {
     int width;
     int height;
+    int isMenu;
 } Screen;
 
 // -- GLOBAL VARIABLES -- 
@@ -136,10 +137,15 @@ void MovePlayer() {
     player.vertices.v3 = v3;
 }
 
+void Menu() {
+    DrawRectangle(screen.width/4, screen.height/4, screen.width/2, screen.height/2, BLACK);
+}
+
 void Init() {
     // -- window definition --
     screen.width = 1600;
     screen.height = 900;
+    screen.isMenu = FALSE;
     InitWindow(screen.width, screen.height, "ASTEROIDS");
     SetTargetFPS(60);
 
@@ -160,7 +166,7 @@ void ProcessInput() {
 
     // menu
     if (IsKeyPressed(KEY_ESCAPE)) {
-        DrawText("MENU", 200, 200, 50, BLACK);
+        screen.isMenu = !screen.isMenu;
         return;
     }
 
@@ -200,6 +206,10 @@ void ProcessInput() {
 void Draw() {
     BeginDrawing();
         ClearBackground(RAYWHITE);
+
+        if (screen.isMenu) {
+            Menu();
+        }
 
         // @@NOTE: debug screen for testing purposes only!
         char angleBuffer[128];
