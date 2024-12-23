@@ -72,21 +72,42 @@ void InitPlayer() {
     player.angle            =  0.0f;
 }
 
+void RotateVertex(Vector2* origVector, float* centerX, float* centerY, float* angle) {
+    // translate to origin 
+    float tx, ty;
+    tx = origVector->x - *centerX;
+    ty = origVector->y - *centerY;
+
+    // rotate
+    float rx, ry;
+    float rad = *angle * DEG2RAD;
+    rx = tx * cos(rad) - ty * sin(rad);
+    ry = tx * sin(rad) + ty * cos(rad);
+
+    // translate back
+    origVector->x = rx + *centerX;
+    origVector->y = ry + *centerY;
+}
+
 void MovePlayer() {
-    player.vertices.v1 = (Vector2) {
-        player.position.x + sinf(player.angle * DEG2RAD) * SHIPHEIGHT,
-        player.position.y - cosf(player.angle * DEG2RAD) * SHIPHEIGHT
-    };
+    float angle = player.angle;
+    float centerX = player.position.x;
+    float centerY = player.position.y;
+    
+    // original vertices
+    Vector2 v1 = (Vector2) { centerX, centerY - SHIPHEIGHT/2.0f };
+    Vector2 v2 = (Vector2) { centerX - SHIPWIDTH, centerY + SHIPHEIGHT/2.0f };
+    Vector2 v3 = (Vector2) { centerX + SHIPWIDTH, centerY + SHIPHEIGHT/2.0f };
 
-    player.vertices.v2 = (Vector2) {
-        player.position.x - cosf(player.angle * DEG2RAD) * SHIPWIDTH,
-        player.position.y - sinf(player.angle * DEG2RAD) * SHIPWIDTH 
-    };
+    // rotate them around
+    RotateVertex(&v1, &centerX, &centerY, &angle);
+    RotateVertex(&v2, &centerX, &centerY, &angle);
+    RotateVertex(&v3, &centerX, &centerY, &angle);
 
-    player.vertices.v3 = (Vector2) {
-        player.position.x + cosf(player.angle * DEG2RAD) * SHIPWIDTH,
-        player.position.y + sinf(player.angle * DEG2RAD) * SHIPWIDTH 
-    };
+    // apply vertices
+    player.vertices.v1 = v1;
+    player.vertices.v2 = v2;
+    player.vertices.v3 = v3;
 }
 
 void Init() {
