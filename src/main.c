@@ -1,8 +1,3 @@
-// -- TODOS --
-// @@TODO-- Mimick the movements of the actual asteroids game (rotation with left-right keys, glide-effect)
-// @@TODO-- deltaTime to prevent weird movements
-// @@TODO-- Rotations! !?!!
-
 // -- INCLUDES --
 #include <stdio.h>
 #include <stdlib.h>
