@@ -30,7 +30,6 @@ typedef struct Player {
 } Player;
 
 
-// @@TODO: Work on this!!!!!!!!!!!!
 typedef struct Screen {
     int width;
     int height;
@@ -139,7 +138,9 @@ void Menu() {
     float padding = 20.0f;
 
     DrawRectangle(topLeft.x, topLeft.y, screen.width/2, screen.height/2, BLACK);
-    DrawText("Hello", topLeft.x, topLeft.y, 50, WHITE);
+    DrawText("Resume", topLeft.x+padding, topLeft.y+padding, 50, WHITE);
+    DrawText("Settings", topLeft.x+padding, topLeft.y+padding, 50, WHITE);
+    DrawText("Exit", topLeft.x+padding, topLeft.y+padding, 50, WHITE);
 }
 
 void Init() {
