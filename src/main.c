@@ -98,16 +98,16 @@ void Draw();
 void RotateVertex(Vector2* origVector, float* centerX, float* centerY, float* angle);
 void WallCollision();
 void ShootProjectile(); 
+void SpawnAsteroid();
+
 
 // -- DRAW -- 
 int main(void) {
     Init();
-
     while (!gameShouldExit) {
         ProcessInput();
         Draw();
     }
-
     CloseWindow();
     return 0;
 }
@@ -416,4 +416,11 @@ void ShootProjectile() {
 
     if (projEntIdx >= MAXNUMPROJECTILES)
         projEntIdx = 0;
+}
+
+void SpawnAsteroid() {
+    //@@NOTE: each asteroid has 12-15 vertices
+    // each vertice is randomly generated within some radius
+    // each vertice is generated in 12-15 step increments around the center
+
 }
