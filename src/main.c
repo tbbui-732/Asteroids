@@ -2,7 +2,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "../include/raylib.h"
+#include "raylib.h"
+
+#define RAYGUI_IMPLEMENTATION
+#include "../include/raygui.h"
 
 // -- DEFINITIONS --
 #define SHIPWIDTH               50 // @@NOTE: the ship's width and height are arbitrary
