@@ -17,6 +17,7 @@
 #define ROTATIONSPEED           5
 #define MAXNUMPROJECTILES       30
 #define PROJECTILESPEED         20 
+#define MAXNUMASTEROIDS         10
 #define TRUE                    1
 #define FALSE                   0
 
@@ -42,12 +43,20 @@ typedef struct Screen {
     int isSetting;
 } Screen;
 
+//@@NOTE: consider for refactoring
 typedef struct ProjEntity {
     Vector2 position;
     float   velocity;
     float   angle;
     int     active;
 } ProjEntity;
+
+typedef struct AsteroidEntity {
+    Vector2 position;
+    float   velocity;
+    float   angle;
+    int     active;
+} AsteroidEntity;
 
 // -- ENUMS --
 enum Difficulty {
@@ -72,9 +81,13 @@ Color spaceshipColors[5] = { RED, BLACK, WHITE, MAROON, GREEN };
 Color spaceshipColor = RED;
 int selectedColorIndex = 0;
 
-// entities
+// -- ENTITIES --
+// projectiles
 int projEntIdx = 0;
 ProjEntity projectiles[MAXNUMPROJECTILES];
+
+// asteroids (enemies)
+AsteroidEntity asteroids[MAXNUMASTEROIDS];
 
 // -- FUNCTIONS -- 
 void InitPlayer();
