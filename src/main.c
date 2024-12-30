@@ -57,6 +57,10 @@ int difficultyDropDownOpen = FALSE;
 
 float masterVolume = 1.0f;
 
+Color spaceshipColors[5] = { RED, BLACK, WHITE, MAROON, GREEN  };
+Color spaceshipColor = RED;
+int selectedColorIndex = 0;
+
 
 // -- FUNCTIONS -- 
 void InitPlayer();
@@ -150,25 +154,32 @@ void MovePlayer() {
 }
 
 void SettingsMenu() {
+    int pos[2] = { 150, 100 };
+    int dim[2] = { 200, 30 };
+    int horPad = 200;
+    int verPad = 200;
+
     DrawText("Settings", screen.width / 2 - MeasureText("Settings", 30) / 2, 30, 30, LIGHTGRAY);
 
     // Difficulty dropdown
-    GuiLabel((Rectangle){ 150, 100, 200, 30 }, "Difficulty:");
-    if (GuiDropdownBox((Rectangle){ 300, 100, 170, 30 }, "Easy;Medium;Hard", &difficultySetting, difficultyDropDownOpen)) {
+    GuiLabel((Rectangle){ pos[0], pos[1], dim[0], dim[1] }, "Difficulty:");
+    if (GuiDropdownBox((Rectangle){ pos[0]+2*horPad, pos[1], dim[0], dim[1] }, "Easy;Medium;Hard", &difficultySetting, difficultyDropDownOpen)) {
         difficultyDropDownOpen = !difficultyDropDownOpen;
     }
 
     // Master volume slider
-    GuiLabel((Rectangle){ 150, 200, 400, 20 }, "Master Volume:");
-    GuiSlider((Rectangle){ 150, 250, 200, 20 }, NULL, NULL, &masterVolume, 0.0f, 1.0f);
+    GuiLabel((Rectangle){ pos[0], pos[1]+verPad, dim[0]*2, dim[1] }, "Master Volume:");
+    GuiSlider((Rectangle){ pos[0]+2*horPad, pos[1]+verPad, dim[0], dim[1] }, NULL, NULL, &masterVolume, 0.0f, 1.0f);
+
+    // Spaceship color selector
+    char* colorNames[5] = { "RED", "BLACK", "WHITE", "MAROON", "GREEN" };
+    GuiLabel((Rectangle){ pos[0], pos[1]+2*verPad, dim[0]*2, dim[1] }, "Spaceship Color:");
+    if (GuiButton((Rectangle){ pos[0]+2*horPad, pos[1]+2*verPad, dim[0], dim[1] }, colorNames[selectedColorIndex])) {
+        selectedColorIndex = (selectedColorIndex + 1) % 5;
+        spaceshipColor = spaceshipColors[selectedColorIndex];
+    }
 
 /*
-    // Spaceship color selector
-    //GuiLabel((Rectangle){ 150, 250, 100, 20 }, "Spaceship Color:");
-    //if (GuiButton((Rectangle){ 250, 250, 120, 20 }, colorNames[selectedColorIndex])) {
-    //    selectedColorIndex = (selectedColorIndex + 1) % 5;
-    //    spaceshipColor = spaceshipColors[selectedColorIndex];
-    //}
 
     // Back button
     if (GuiButton((Rectangle){ (float)screen.width / 2 - 50, 350, 100, 40 }, "Back")) {
@@ -309,7 +320,7 @@ void Draw() {
 */
 
         // draw player/ship
-        DrawTriangle(player.vertices.v1, player.vertices.v2, player.vertices.v3, MAROON);
+        DrawTriangle(player.vertices.v1, player.vertices.v2, player.vertices.v3, spaceshipColor);
 
     EndDrawing();
 }
