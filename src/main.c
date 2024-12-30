@@ -39,12 +39,21 @@ typedef struct Screen {
     int isMenu;
 } Screen;
 
+// -- ENUMS --
+enum Difficulty {
+    EASY,
+    MEDIUM,
+    HARD,
+    NDIFFICULTIES
+};
+
 // -- GLOBAL VARIABLES -- 
 Player player;
 Screen screen;
 int gameShouldExit = FALSE;
-int activeOption = 0;
-int dropDownOpen = 0;
+
+int difficultySetting = EASY;
+int difficultyDropDownOpen = FALSE;
 
 
 // -- FUNCTIONS -- 
@@ -145,8 +154,8 @@ void SettingsMenu() {
 
         // Difficulty dropdown
         GuiLabel((Rectangle){ 150, 100, 200, 30 }, "Difficulty:");
-        if (GuiDropdownBox((Rectangle){ 300, 100, 170, 30 }, "Easy;Medium;Hard", &activeOption, dropDownOpen)) {
-            dropDownOpen = !dropDownOpen;
+        if (GuiDropdownBox((Rectangle){ 300, 100, 170, 30 }, "Easy;Medium;Hard", &difficultySetting, difficultyDropDownOpen)) {
+            difficultyDropDownOpen = !difficultyDropDownOpen;
         }
 
 /*
