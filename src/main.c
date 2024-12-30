@@ -62,6 +62,7 @@ Player player;
 Screen screen;
 int gameShouldExit = FALSE;
 float deltaTime;
+int numProjectiles = 0;
 
 // settings
 int difficultySetting = EASY;
@@ -306,7 +307,8 @@ void ProcessInput() {
 
     // shoot projectiles
     if (IsKeyPressed(KEY_SPACE)) {
-       ShootProjectile(); 
+        numProjectiles++;
+        ShootProjectile(); 
     }
 }
 
@@ -328,6 +330,7 @@ void Draw() {
         char speedBuffer[128];
         char accelBuffer[128];
         char fpsBuffer[128];
+        char numProjectBuffer[128];
 
         int out;
         out = snprintf(angleBuffer, 128, "angle (degrees):\t%.0f", player.angle);
@@ -350,15 +353,21 @@ void Draw() {
             printf("ERROR: Unable to pass FPS value to buffer\n");
             exit(1);
         }
+        out = snprintf(numProjectBuffer, 128, "num projectiles:\t%d", numProjectiles);
+        if (out <= -1) {
+            printf("ERROR: Unable to pass FPS value to buffer\n");
+            exit(1);
+        }
 
-        DrawText(angleBuffer, screen.width/25, screen.height/10, 50, MAROON);
-        DrawText(speedBuffer, screen.width/25, screen.height/6,  50, MAROON);
-        DrawText(accelBuffer, screen.width/25, screen.height/4,  50, MAROON);
-        DrawText(fpsBuffer, screen.width/25, screen.height/2,  50, MAROON);
+        DrawText(angleBuffer,       screen.width/25, screen.height/10,  50, MAROON);
+        DrawText(speedBuffer,       screen.width/25, screen.height/6,   50, MAROON);
+        DrawText(accelBuffer,       screen.width/25, screen.height/4,   50, MAROON);
+        DrawText(fpsBuffer,         screen.width/25, screen.height/2,   50, MAROON);
+        DrawText(numProjectBuffer,  screen.width/25, screen.height-100,     50, MAROON);
 
         // draw player/ship
         DrawTriangle(player.vertices.v1, player.vertices.v2, player.vertices.v3, spaceshipColor);
-
+ 
         // draw projectiles
         for (int i = 0; i < MAXNUMPROJECTILES; i++) {
             if (projectiles[i].active == FALSE) continue;
@@ -373,21 +382,16 @@ void Draw() {
             DrawRectangle(*xpos, *ypos, 10, 10, BLACK);
             
             // check for projectile collision with wall
-            if (*xpos < 0 || *xpos > screen.width)
+            if (*xpos < 0 || *xpos > screen.width || *ypos < 0 || *ypos > screen.height) {
                 projectiles[i].active = FALSE;
-            if (*ypos < 0 || *ypos > screen.height)
-                projectiles[i].active = FALSE;
+                numProjectiles--;
+            }
         }
- 
+
     EndDrawing();
 }
 
 void ShootProjectile() {
-    /* @@TODO
-     * Spawn a square at the player's position
-     * Give the square some velocity pointed at the player's rotation angle
-     * */
-    
     ProjEntity projectile = (ProjEntity) { (Vector2){player.position.x, player.position.y}, PROJECTILESPEED, player.angle, TRUE };
     projectiles[projEntIdx++] = projectile;
 
