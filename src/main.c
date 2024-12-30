@@ -61,7 +61,7 @@ enum Difficulty {
 Player player;
 Screen screen;
 int gameShouldExit = FALSE;
-
+float deltaTime;
 
 // settings
 int difficultySetting = EASY;
@@ -74,7 +74,6 @@ int selectedColorIndex = 0;
 // entities
 int projEntIdx = 0;
 ProjEntity projectiles[MAXNUMPROJECTILES];
-
 
 // -- FUNCTIONS -- 
 void InitPlayer();
@@ -236,7 +235,7 @@ void Init() {
 
     // -- window definition --
     InitWindow(screen.width, screen.height, "ASTEROIDS");
-    SetTargetFPS(60);
+    SetTargetFPS(300);
 
     // -- redefine escape key --
     SetExitKey(KEY_Q);
@@ -269,15 +268,15 @@ void ProcessInput() {
 
     // rotation angles
     if (IsKeyDown(KEY_A) || IsKeyDown(KEY_LEFT)) {
-        player.angle -= ROTATIONSPEED;
+        player.angle -= ROTATIONSPEED * deltaTime;
         if (player.angle < 0) {
-            player.angle = 360.0f-ROTATIONSPEED;
+            player.angle = 360.0f;
         }
     }
     if (IsKeyDown(KEY_D) || IsKeyDown(KEY_RIGHT)) {
-        player.angle += ROTATIONSPEED;
+        player.angle += ROTATIONSPEED * deltaTime;
         if (player.angle > 360.0f) {
-            player.angle = 0.0f+ROTATIONSPEED;
+            player.angle = 0.0f;
         }
     }
 
@@ -288,18 +287,17 @@ void ProcessInput() {
     // player acceleration
     if (IsKeyDown(KEY_W) || IsKeyDown(KEY_UP)) {    // step on the pedal!
         if (player.acceleration <= SHIPMAXACCELERATION) {
-            player.acceleration += 0.05f;
+            player.acceleration += 0.05f * deltaTime;
         }
     } else {
         if (player.acceleration > 0.0f) {           // slow down there bucko
-            player.acceleration -= 0.03f;
+            player.acceleration -= 0.03f * deltaTime;
         } else if (player.acceleration < 0.0f) {
             player.acceleration = 0.0f;
         }
     }
 
     // player position
-    float deltaTime = GetFrameTime() * 40;
     player.position.x += player.speed.x * player.acceleration * deltaTime;
     player.position.y -= player.speed.y * player.acceleration * deltaTime;
 
@@ -316,6 +314,8 @@ void ProcessInput() {
 void Draw() {
     BeginDrawing();
         ClearBackground(RAYWHITE);
+        
+        deltaTime = GetFrameTime() * 40;
 
         if (screen.isMenu) {
             Menu();
@@ -327,6 +327,7 @@ void Draw() {
         char angleBuffer[128];
         char speedBuffer[128];
         char accelBuffer[128];
+        char fpsBuffer[128];
 
         int out;
         out = snprintf(angleBuffer, 128, "angle (degrees):\t%.0f", player.angle);
@@ -344,10 +345,16 @@ void Draw() {
             printf("ERROR: Unable to pass acceleration value to buffer\n");
             exit(1);
         }
+        out = snprintf(fpsBuffer, 128, "FPS:\t%d", GetFPS());
+        if (out <= -1) {
+            printf("ERROR: Unable to pass FPS value to buffer\n");
+            exit(1);
+        }
 
         DrawText(angleBuffer, screen.width/25, screen.height/10, 50, MAROON);
         DrawText(speedBuffer, screen.width/25, screen.height/6,  50, MAROON);
         DrawText(accelBuffer, screen.width/25, screen.height/4,  50, MAROON);
+        DrawText(fpsBuffer, screen.width/25, screen.height/2,  50, MAROON);
 
         // draw player/ship
         DrawTriangle(player.vertices.v1, player.vertices.v2, player.vertices.v3, spaceshipColor);
@@ -360,7 +367,6 @@ void Draw() {
             float* ypos = &projectiles[i].position.y;
             float* angle = &projectiles[i].angle;
 
-            float deltaTime = GetFrameTime() * 40;
             *xpos += sin(*angle*DEG2RAD) * projectiles[i].velocity * deltaTime; 
             *ypos -= cos(*angle*DEG2RAD) * projectiles[i].velocity * deltaTime; 
 
@@ -371,7 +377,6 @@ void Draw() {
                 projectiles[i].active = FALSE;
             if (*ypos < 0 || *ypos > screen.height)
                 projectiles[i].active = FALSE;
-
         }
  
     EndDrawing();
