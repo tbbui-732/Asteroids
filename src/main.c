@@ -238,6 +238,7 @@ void Draw() {
         }
 
         // @@NOTE: debug screen for testing purposes only!
+/*
         char angleBuffer[128];
         char speedBuffer[128];
         char accelBuffer[128];
@@ -262,6 +263,7 @@ void Draw() {
         DrawText(angleBuffer, screen.width/25, screen.height/10, 50, MAROON);
         DrawText(speedBuffer, screen.width/25, screen.height/6,  50, MAROON);
         DrawText(accelBuffer, screen.width/25, screen.height/4,  50, MAROON);
+*/
 
         // draw player/ship
         DrawTriangle(player.vertices.v1, player.vertices.v2, player.vertices.v3, MAROON);
