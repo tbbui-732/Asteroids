@@ -42,7 +42,9 @@ typedef struct Screen {
 // -- GLOBAL VARIABLES -- 
 Player player;
 Screen screen;
-bool gameShouldExit = FALSE;
+int gameShouldExit = FALSE;
+int activeOption = 0;
+int dropDownOpen = 0;
 
 
 // -- FUNCTIONS -- 
@@ -134,6 +136,42 @@ void MovePlayer() {
     player.vertices.v1 = v1;
     player.vertices.v2 = v2;
     player.vertices.v3 = v3;
+}
+
+void SettingsMenu() {
+
+ // Draw settings menu title
+        DrawText("Settings", screen.width / 2 - MeasureText("Settings", 30) / 2, 30, 30, LIGHTGRAY);
+
+        // Difficulty dropdown
+        GuiLabel((Rectangle){ 150, 100, 200, 30 }, "Difficulty:");
+        if (GuiDropdownBox((Rectangle){ 300, 100, 170, 30 }, "Easy;Medium;Hard", &activeOption, dropDownOpen)) {
+            dropDownOpen = !dropDownOpen;
+        }
+
+/*
+        // Sound effects toggle
+        GuiLabel((Rectangle){ 150, 150, 100, 20 }, "Sound Effects:");
+        GuiCheckBox((Rectangle){ 250, 150, 20, 20 }, NULL, NULL);
+
+        // Music volume slider
+        float musicVolume;
+        GuiLabel((Rectangle){ 150, 200, 100, 20 }, "Music Volume:");
+        GuiSlider((Rectangle){ 250, 200, 200, 20 }, NULL, NULL, &musicVolume, 0.0f, 1.0f);
+
+        // Spaceship color selector
+        //GuiLabel((Rectangle){ 150, 250, 100, 20 }, "Spaceship Color:");
+        //if (GuiButton((Rectangle){ 250, 250, 120, 20 }, colorNames[selectedColorIndex])) {
+        //    selectedColorIndex = (selectedColorIndex + 1) % 5;
+        //    spaceshipColor = spaceshipColors[selectedColorIndex];
+        //}
+
+        // Back button
+        if (GuiButton((Rectangle){ (float)screen.width / 2 - 50, 350, 100, 40 }, "Back")) {
+            return;
+        }
+*/
+
 }
 
 void Menu() {
@@ -232,7 +270,8 @@ void Draw() {
         ClearBackground(RAYWHITE);
 
         if (screen.isMenu) {
-            Menu();
+            //Menu();
+            SettingsMenu();
             EndDrawing();
             return;
         }
