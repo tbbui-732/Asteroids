@@ -359,12 +359,16 @@ void Draw() {
             exit(1);
         }
 
-        DrawText(angleBuffer,       screen.width/25, screen.height/10,  50, MAROON);
-        DrawText(speedBuffer,       screen.width/25, screen.height/6,   50, MAROON);
-        DrawText(accelBuffer,       screen.width/25, screen.height/4,   50, MAROON);
-        DrawText(fpsBuffer,         screen.width/25, screen.height/2,   50, MAROON);
-        DrawText(numProjectBuffer,  screen.width/25, screen.height-100,     50, MAROON);
+        int xpos = screen.width/25;
+        int ypos = screen.width/25;
 
+        GuiWindowBox((Rectangle){ xpos-10, ypos, 350, 350 }, "Debug Info");
+        GuiLabel((Rectangle){ xpos, 100, 350, 40 }, angleBuffer);
+        GuiLabel((Rectangle){ xpos, 150, 350, 40 }, speedBuffer);
+        GuiLabel((Rectangle){ xpos, 200, 350, 40 }, accelBuffer);
+        GuiLabel((Rectangle){ xpos, 250, 350, 40 }, fpsBuffer);
+        GuiLabel((Rectangle){ xpos, 300, 350, 40 }, numProjectBuffer);
+        
         // draw player/ship
         DrawTriangle(player.vertices.v1, player.vertices.v2, player.vertices.v3, spaceshipColor);
  
