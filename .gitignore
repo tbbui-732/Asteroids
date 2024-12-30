@@ -1,2 +1,8 @@
+# executables
 game
+
+# object files
 *.o
+
+# build directory
+build/

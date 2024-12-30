@@ -1,13 +1,11 @@
-// -- TODOS --
-// @@TODO-- Mimick the movements of the actual asteroids game (rotation with left-right keys, glide-effect)
-// @@TODO-- deltaTime to prevent weird movements
-// @@TODO-- Rotations! !?!!
-
 // -- INCLUDES --
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "../include/raylib.h"
+#include "raylib.h"
+
+#define RAYGUI_IMPLEMENTATION
+#include "../include/raygui.h"
 
 // -- DEFINITIONS --
 #define SHIPWIDTH               50 // @@NOTE: the ship's width and height are arbitrary
@@ -35,15 +33,35 @@ typedef struct Player {
 } Player;
 
 
-// @@TODO: Work on this!!!!!!!!!!!!
 typedef struct Screen {
     int width;
     int height;
+    int isMenu;
+    int isSetting;
 } Screen;
+
+// -- ENUMS --
+enum Difficulty {
+    EASY,
+    MEDIUM,
+    HARD,
+    NDIFFICULTIES
+};
 
 // -- GLOBAL VARIABLES -- 
 Player player;
 Screen screen;
+int gameShouldExit = FALSE;
+
+int difficultySetting = EASY;
+int difficultyDropDownOpen = FALSE;
+
+float masterVolume = 1.0f;
+
+Color spaceshipColors[5] = { RED, BLACK, WHITE, MAROON, GREEN  };
+Color spaceshipColor = RED;
+int selectedColorIndex = 0;
+
 
 // -- FUNCTIONS -- 
 void InitPlayer();
@@ -58,7 +76,7 @@ void WallCollision();
 int main(void) {
     Init();
 
-    while (!WindowShouldClose()) {
+    while (!gameShouldExit) {
         ProcessInput();
         Draw();
     }
@@ -136,22 +154,102 @@ void MovePlayer() {
     player.vertices.v3 = v3;
 }
 
+void SettingsMenu() {
+    int pos[2] = { 150, 100 };
+    int dim[2] = { 200, 30 };
+    int horPad = 200;
+    int verPad = 200;
+
+    DrawText("Settings", screen.width / 2 - MeasureText("Settings", 30) / 2, 30, 30, LIGHTGRAY);
+
+    // Difficulty dropdown
+    GuiLabel((Rectangle){ pos[0], pos[1], dim[0], dim[1] }, "Difficulty:");
+    if (GuiDropdownBox((Rectangle){ pos[0]+2*horPad, pos[1], dim[0], dim[1] }, "Easy;Medium;Hard", &difficultySetting, difficultyDropDownOpen)) {
+        difficultyDropDownOpen = !difficultyDropDownOpen;
+    }
+
+    // Master volume slider
+    GuiLabel((Rectangle){ pos[0], pos[1]+verPad, dim[0]*2, dim[1] }, "Master Volume:");
+    GuiSlider((Rectangle){ pos[0]+2*horPad, pos[1]+verPad, dim[0], dim[1] }, NULL, NULL, &masterVolume, 0.0f, 1.0f);
+
+    // Spaceship color selector
+    char* colorNames[5] = { "RED", "BLACK", "WHITE", "MAROON", "GREEN" };
+    GuiLabel((Rectangle){ pos[0], pos[1]+2*verPad, dim[0]*2, dim[1] }, "Spaceship Color:");
+    if (GuiButton((Rectangle){ pos[0]+2*horPad, pos[1]+2*verPad, dim[0], dim[1] }, colorNames[selectedColorIndex])) {
+        selectedColorIndex = (selectedColorIndex + 1) % 5;
+        spaceshipColor = spaceshipColors[selectedColorIndex];
+    }
+
+    // Back button
+    if (GuiButton((Rectangle){ pos[0], pos[1]+3*verPad, dim[0], dim[1] }, "Back")) {
+        screen.isSetting = !screen.isSetting;
+    }
+
+}
+
+void Menu() {
+    // @@TODO: Rectangular window with three options: Resume, Settings, Exit
+    // Settings: Resolution
+    
+    if (screen.isSetting) {
+        return SettingsMenu();
+    }
+
+    const char* text = "Game Paused";
+    const int titleFontSize = 50;
+    DrawText(text, screen.width / 2 - MeasureText(text, titleFontSize) / 2, 50, titleFontSize, DARKGRAY);
+
+    if (GuiButton((Rectangle){ (float)screen.width / 2 - 100, 150, 200, 30 }, "Resume")) {
+        TraceLog(LOG_INFO, "Game unpaused");
+        screen.isMenu = !screen.isMenu;
+    }
+    if (GuiButton((Rectangle){ (float)screen.width / 2 - 100, 200, 200, 30 }, "Settings")) {
+        TraceLog(LOG_INFO, "Settings");
+        screen.isSetting = !screen.isSetting;
+    }
+    if (GuiButton((Rectangle){ (float)screen.width / 2 - 100, 250, 200, 30 }, "Quit")) {
+        TraceLog(LOG_INFO, "Quit game");
+        gameShouldExit = TRUE;
+    }
+}
+
 void Init() {
-    // -- window definition --
+    // -- screen initialization --
     screen.width = 1600;
     screen.height = 900;
+    screen.isMenu = FALSE;
+    screen.isSetting = FALSE;
+
+    // -- window definition --
     InitWindow(screen.width, screen.height, "ASTEROIDS");
     SetTargetFPS(60);
+
+    // -- redefine escape key --
+    SetExitKey(KEY_Q);
+
+    // -- raygui --
+    GuiSetStyle(DEFAULT, TEXT_SIZE, 30);
 
     // -- initialize player --
     InitPlayer();
 }
 
 void ProcessInput() {
+    if (IsKeyDown(KEY_Q))
+        gameShouldExit = TRUE;
+
     // @@NOTE: this key is for testing purposes only!!
     if (IsKeyDown(KEY_R)) {
         DrawText("RESET", 100, 100, 50, RED);
         InitPlayer();
+        return;
+    }
+
+    // menu
+    if (IsKeyPressed(KEY_ESCAPE)) {
+        if (screen.isSetting)
+            screen.isSetting = !screen.isSetting;
+        screen.isMenu = !screen.isMenu;
         return;
     }
 
@@ -192,12 +290,19 @@ void Draw() {
     BeginDrawing();
         ClearBackground(RAYWHITE);
 
+        if (screen.isMenu) {
+            Menu();
+            EndDrawing();
+            return;
+        }
+
         // @@NOTE: debug screen for testing purposes only!
+/*
         char angleBuffer[128];
         char speedBuffer[128];
         char accelBuffer[128];
+
         int out;
-        
         out = snprintf(angleBuffer, 128, "angle (degrees):\t%.0f", player.angle);
         if (out <= -1) {
             printf("ERROR: Unable to pass angle value to buffer\n");
@@ -217,9 +322,10 @@ void Draw() {
         DrawText(angleBuffer, screen.width/25, screen.height/10, 50, MAROON);
         DrawText(speedBuffer, screen.width/25, screen.height/6,  50, MAROON);
         DrawText(accelBuffer, screen.width/25, screen.height/4,  50, MAROON);
+*/
 
         // draw player/ship
-        DrawTriangle(player.vertices.v1, player.vertices.v2, player.vertices.v3, MAROON);
+        DrawTriangle(player.vertices.v1, player.vertices.v2, player.vertices.v3, spaceshipColor);
 
     EndDrawing();
 }
