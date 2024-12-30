@@ -164,7 +164,7 @@ void MovePlayer() {
     float angle = player.angle;
     float centerX = player.position.x;
     float centerY = player.position.y;
-    
+
     // original vertices
     Vector2 v1 = (Vector2) { centerX, centerY - SHIPHEIGHT/2.0f };
     Vector2 v2 = (Vector2) { centerX - SHIPWIDTH, centerY + SHIPHEIGHT/2.0f };
@@ -211,13 +211,12 @@ void SettingsMenu() {
     if (GuiButton((Rectangle){ pos[0], pos[1]+3*verPad, dim[0], dim[1] }, "Back")) {
         screen.isSetting = !screen.isSetting;
     }
-
 }
 
 void Menu() {
     // @@TODO: Rectangular window with three options: Resume, Settings, Exit
     // Settings: Resolution
-    
+
     if (screen.isSetting) {
         return SettingsMenu();
     }
@@ -328,83 +327,86 @@ void ProcessInput() {
 
 void Draw() {
     BeginDrawing();
-        ClearBackground(RAYWHITE);
-        
-        deltaTime = GetFrameTime() * 40;
+    // ----------------------------------------------------------------------------------------------------
 
-        if (screen.isMenu) {
-            Menu();
-            EndDrawing();
-            return;
+    ClearBackground(RAYWHITE);
+
+    deltaTime = GetFrameTime() * 40;
+
+    if (screen.isMenu) {
+        Menu();
+        EndDrawing();
+        return;
+    }
+
+    // @@NOTE: debug screen for testing purposes only!
+    char angleBuffer[128];
+    char speedBuffer[128];
+    char accelBuffer[128];
+    char fpsBuffer[128];
+    char numProjectBuffer[128];
+
+    int out;
+    out = snprintf(angleBuffer, 128, "angle (degrees):\t%.0f", player.angle);
+    if (out <= -1) {
+        printf("ERROR: Unable to pass angle value to buffer\n");
+        exit(1);
+    }
+    out = snprintf(speedBuffer, 128, "speed direction:\t(%.0f, %.0f)", player.speed.x, player.speed.y);
+    if (out <= -1) {
+        printf("ERROR: Unable to pass speed value to buffer\n");
+        exit(1);
+    }
+    out = snprintf(accelBuffer, 128, "acceleration:\t%.2f", player.acceleration);
+    if (out <= -1) {
+        printf("ERROR: Unable to pass acceleration value to buffer\n");
+        exit(1);
+    }
+    out = snprintf(fpsBuffer, 128, "FPS:\t%d", GetFPS());
+    if (out <= -1) {
+        printf("ERROR: Unable to pass FPS value to buffer\n");
+        exit(1);
+    }
+    out = snprintf(numProjectBuffer, 128, "num projectiles:\t%d", numProjectiles);
+    if (out <= -1) {
+        printf("ERROR: Unable to pass FPS value to buffer\n");
+        exit(1);
+    }
+
+    int xpos = screen.width/25;
+    int ypos = screen.width/25;
+
+    GuiWindowBox((Rectangle){ xpos-10, ypos, 350, 350 }, "Debug Info");
+    GuiLabel((Rectangle){ xpos, 100, 350, 40 }, angleBuffer);
+    GuiLabel((Rectangle){ xpos, 150, 350, 40 }, speedBuffer);
+    GuiLabel((Rectangle){ xpos, 200, 350, 40 }, accelBuffer);
+    GuiLabel((Rectangle){ xpos, 250, 350, 40 }, fpsBuffer);
+    GuiLabel((Rectangle){ xpos, 300, 350, 40 }, numProjectBuffer);
+
+    // draw player/ship
+    DrawTriangle(player.vertices.v1, player.vertices.v2, player.vertices.v3, spaceshipColor);
+
+    // draw projectiles
+    for (int i = 0; i < MAXNUMPROJECTILES; i++) {
+        if (projectiles[i].active == FALSE) continue;
+
+        float* xpos = &projectiles[i].position.x;
+        float* ypos = &projectiles[i].position.y;
+        float* angle = &projectiles[i].angle;
+
+        *xpos += sin(*angle*DEG2RAD) * projectiles[i].velocity * deltaTime; 
+        *ypos -= cos(*angle*DEG2RAD) * projectiles[i].velocity * deltaTime; 
+
+        DrawRectangle(*xpos, *ypos, 10, 10, BLACK);
+
+        // check for projectile collision with wall
+        if (*xpos < 0 || *xpos > screen.width || *ypos < 0 || *ypos > screen.height) {
+            projectiles[i].active = FALSE;
+            numProjectiles--;
         }
+    }
 
-        // @@NOTE: debug screen for testing purposes only!
-        char angleBuffer[128];
-        char speedBuffer[128];
-        char accelBuffer[128];
-        char fpsBuffer[128];
-        char numProjectBuffer[128];
-
-        int out;
-        out = snprintf(angleBuffer, 128, "angle (degrees):\t%.0f", player.angle);
-        if (out <= -1) {
-            printf("ERROR: Unable to pass angle value to buffer\n");
-            exit(1);
-        }
-        out = snprintf(speedBuffer, 128, "speed direction:\t(%.0f, %.0f)", player.speed.x, player.speed.y);
-        if (out <= -1) {
-            printf("ERROR: Unable to pass speed value to buffer\n");
-            exit(1);
-        }
-        out = snprintf(accelBuffer, 128, "acceleration:\t%.2f", player.acceleration);
-        if (out <= -1) {
-            printf("ERROR: Unable to pass acceleration value to buffer\n");
-            exit(1);
-        }
-        out = snprintf(fpsBuffer, 128, "FPS:\t%d", GetFPS());
-        if (out <= -1) {
-            printf("ERROR: Unable to pass FPS value to buffer\n");
-            exit(1);
-        }
-        out = snprintf(numProjectBuffer, 128, "num projectiles:\t%d", numProjectiles);
-        if (out <= -1) {
-            printf("ERROR: Unable to pass FPS value to buffer\n");
-            exit(1);
-        }
-
-        int xpos = screen.width/25;
-        int ypos = screen.width/25;
-
-        GuiWindowBox((Rectangle){ xpos-10, ypos, 350, 350 }, "Debug Info");
-        GuiLabel((Rectangle){ xpos, 100, 350, 40 }, angleBuffer);
-        GuiLabel((Rectangle){ xpos, 150, 350, 40 }, speedBuffer);
-        GuiLabel((Rectangle){ xpos, 200, 350, 40 }, accelBuffer);
-        GuiLabel((Rectangle){ xpos, 250, 350, 40 }, fpsBuffer);
-        GuiLabel((Rectangle){ xpos, 300, 350, 40 }, numProjectBuffer);
-        
-        // draw player/ship
-        DrawTriangle(player.vertices.v1, player.vertices.v2, player.vertices.v3, spaceshipColor);
- 
-        // draw projectiles
-        for (int i = 0; i < MAXNUMPROJECTILES; i++) {
-            if (projectiles[i].active == FALSE) continue;
-
-            float* xpos = &projectiles[i].position.x;
-            float* ypos = &projectiles[i].position.y;
-            float* angle = &projectiles[i].angle;
-
-            *xpos += sin(*angle*DEG2RAD) * projectiles[i].velocity * deltaTime; 
-            *ypos -= cos(*angle*DEG2RAD) * projectiles[i].velocity * deltaTime; 
-
-            DrawRectangle(*xpos, *ypos, 10, 10, BLACK);
-            
-            // check for projectile collision with wall
-            if (*xpos < 0 || *xpos > screen.width || *ypos < 0 || *ypos > screen.height) {
-                projectiles[i].active = FALSE;
-                numProjectiles--;
-            }
-        }
-
+    // ----------------------------------------------------------------------------------------------------
     EndDrawing();
 }
 
