@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <string.h>
 #include "raylib.h"
 
 #define RAYGUI_IMPLEMENTATION
@@ -45,6 +46,7 @@ typedef struct ProjEntity {
     Vector2 position;
     float   velocity;
     float   angle;
+    int     active;
 } ProjEntity;
 
 // -- ENUMS --
@@ -352,6 +354,8 @@ void Draw() {
 
         // draw projectiles
         for (int i = 0; i < MAXNUMPROJECTILES; i++) {
+            if (projectiles[i].active == FALSE) continue;
+
             float* xpos = &projectiles[i].position.x;
             float* ypos = &projectiles[i].position.y;
             float* angle = &projectiles[i].angle;
@@ -361,6 +365,13 @@ void Draw() {
             *ypos -= cos(*angle*DEG2RAD) * projectiles[i].velocity * deltaTime; 
 
             DrawRectangle(*xpos, *ypos, 10, 10, BLACK);
+            
+            // check for projectile collision with wall
+            if (*xpos < 0 || *xpos > screen.width)
+                projectiles[i].active = FALSE;
+            if (*ypos < 0 || *ypos > screen.height)
+                projectiles[i].active = FALSE;
+
         }
  
     EndDrawing();
@@ -372,7 +383,7 @@ void ShootProjectile() {
      * Give the square some velocity pointed at the player's rotation angle
      * */
     
-    ProjEntity projectile = (ProjEntity) { (Vector2){player.position.x, player.position.y}, PROJECTILESPEED, player.angle };
+    ProjEntity projectile = (ProjEntity) { (Vector2){player.position.x, player.position.y}, PROJECTILESPEED, player.angle, TRUE };
     projectiles[projEntIdx++] = projectile;
 
     if (projEntIdx >= MAXNUMPROJECTILES)
