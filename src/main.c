@@ -2,18 +2,21 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <string.h>
 #include "raylib.h"
 
 #define RAYGUI_IMPLEMENTATION
 #include "../include/raygui.h"
 
 // -- DEFINITIONS --
-#define SHIPWIDTH               50 // @@NOTE: the ship's width and height are arbitrary
-#define SHIPHEIGHT              150
-#define SHIPSPEED               10
+#define SHIPWIDTH               25 // @@NOTE: the ship's width and height are arbitrary
+#define SHIPHEIGHT              75 
+#define SHIPSPEED               5
 #define SHIPMAXACCELERATION     2
 #define SHIPMAXSPEED            20
 #define ROTATIONSPEED           5
+#define MAXNUMPROJECTILES       30
+#define PROJECTILESPEED         20 
 #define TRUE                    1
 #define FALSE                   0
 
@@ -32,13 +35,19 @@ typedef struct Player {
     float           angle;
 } Player;
 
-
 typedef struct Screen {
     int width;
     int height;
     int isMenu;
     int isSetting;
 } Screen;
+
+typedef struct ProjEntity {
+    Vector2 position;
+    float   velocity;
+    float   angle;
+    int     active;
+} ProjEntity;
 
 // -- ENUMS --
 enum Difficulty {
@@ -52,16 +61,20 @@ enum Difficulty {
 Player player;
 Screen screen;
 int gameShouldExit = FALSE;
+float deltaTime;
+int numProjectiles = 0;
 
+// settings
 int difficultySetting = EASY;
 int difficultyDropDownOpen = FALSE;
-
 float masterVolume = 1.0f;
-
-Color spaceshipColors[5] = { RED, BLACK, WHITE, MAROON, GREEN  };
+Color spaceshipColors[5] = { RED, BLACK, WHITE, MAROON, GREEN };
 Color spaceshipColor = RED;
 int selectedColorIndex = 0;
 
+// entities
+int projEntIdx = 0;
+ProjEntity projectiles[MAXNUMPROJECTILES];
 
 // -- FUNCTIONS -- 
 void InitPlayer();
@@ -71,6 +84,7 @@ void ProcessInput();
 void Draw();
 void RotateVertex(Vector2* origVector, float* centerX, float* centerY, float* angle);
 void WallCollision();
+void ShootProjectile(); 
 
 // -- DRAW -- 
 int main(void) {
@@ -222,7 +236,7 @@ void Init() {
 
     // -- window definition --
     InitWindow(screen.width, screen.height, "ASTEROIDS");
-    SetTargetFPS(60);
+    SetTargetFPS(300);
 
     // -- redefine escape key --
     SetExitKey(KEY_Q);
@@ -254,10 +268,18 @@ void ProcessInput() {
     }
 
     // rotation angles
-    if (IsKeyDown(KEY_A) || IsKeyDown(KEY_LEFT))
-        player.angle -= ROTATIONSPEED;
-    if (IsKeyDown(KEY_D) || IsKeyDown(KEY_RIGHT))
-        player.angle += ROTATIONSPEED;
+    if (IsKeyDown(KEY_A) || IsKeyDown(KEY_LEFT)) {
+        player.angle -= ROTATIONSPEED * deltaTime;
+        if (player.angle < 0) {
+            player.angle = 360.0f;
+        }
+    }
+    if (IsKeyDown(KEY_D) || IsKeyDown(KEY_RIGHT)) {
+        player.angle += ROTATIONSPEED * deltaTime;
+        if (player.angle > 360.0f) {
+            player.angle = 0.0f;
+        }
+    }
 
     // player speed @@NOTE: Why do we need to do this?
     player.speed.x = sin(player.angle * DEG2RAD) * SHIPSPEED;
@@ -266,29 +288,36 @@ void ProcessInput() {
     // player acceleration
     if (IsKeyDown(KEY_W) || IsKeyDown(KEY_UP)) {    // step on the pedal!
         if (player.acceleration <= SHIPMAXACCELERATION) {
-            player.acceleration += 0.05f;
+            player.acceleration += 0.05f * deltaTime;
         }
     } else {
         if (player.acceleration > 0.0f) {           // slow down there bucko
-            player.acceleration -= 0.03f;
+            player.acceleration -= 0.03f * deltaTime;
         } else if (player.acceleration < 0.0f) {
             player.acceleration = 0.0f;
         }
     }
 
     // player position
-    float deltaTime = GetFrameTime() * 40;
     player.position.x += player.speed.x * player.acceleration * deltaTime;
     player.position.y -= player.speed.y * player.acceleration * deltaTime;
 
     WallCollision();
     MovePlayer();
+
+    // shoot projectiles
+    if (IsKeyPressed(KEY_SPACE)) {
+        numProjectiles++;
+        ShootProjectile(); 
+    }
 }
 
 
 void Draw() {
     BeginDrawing();
         ClearBackground(RAYWHITE);
+        
+        deltaTime = GetFrameTime() * 40;
 
         if (screen.isMenu) {
             Menu();
@@ -297,10 +326,11 @@ void Draw() {
         }
 
         // @@NOTE: debug screen for testing purposes only!
-/*
         char angleBuffer[128];
         char speedBuffer[128];
         char accelBuffer[128];
+        char fpsBuffer[128];
+        char numProjectBuffer[128];
 
         int out;
         out = snprintf(angleBuffer, 128, "angle (degrees):\t%.0f", player.angle);
@@ -318,15 +348,57 @@ void Draw() {
             printf("ERROR: Unable to pass acceleration value to buffer\n");
             exit(1);
         }
+        out = snprintf(fpsBuffer, 128, "FPS:\t%d", GetFPS());
+        if (out <= -1) {
+            printf("ERROR: Unable to pass FPS value to buffer\n");
+            exit(1);
+        }
+        out = snprintf(numProjectBuffer, 128, "num projectiles:\t%d", numProjectiles);
+        if (out <= -1) {
+            printf("ERROR: Unable to pass FPS value to buffer\n");
+            exit(1);
+        }
 
-        DrawText(angleBuffer, screen.width/25, screen.height/10, 50, MAROON);
-        DrawText(speedBuffer, screen.width/25, screen.height/6,  50, MAROON);
-        DrawText(accelBuffer, screen.width/25, screen.height/4,  50, MAROON);
-*/
+        int xpos = screen.width/25;
+        int ypos = screen.width/25;
 
+        GuiWindowBox((Rectangle){ xpos-10, ypos, 350, 350 }, "Debug Info");
+        GuiLabel((Rectangle){ xpos, 100, 350, 40 }, angleBuffer);
+        GuiLabel((Rectangle){ xpos, 150, 350, 40 }, speedBuffer);
+        GuiLabel((Rectangle){ xpos, 200, 350, 40 }, accelBuffer);
+        GuiLabel((Rectangle){ xpos, 250, 350, 40 }, fpsBuffer);
+        GuiLabel((Rectangle){ xpos, 300, 350, 40 }, numProjectBuffer);
+        
         // draw player/ship
         DrawTriangle(player.vertices.v1, player.vertices.v2, player.vertices.v3, spaceshipColor);
+ 
+        // draw projectiles
+        for (int i = 0; i < MAXNUMPROJECTILES; i++) {
+            if (projectiles[i].active == FALSE) continue;
+
+            float* xpos = &projectiles[i].position.x;
+            float* ypos = &projectiles[i].position.y;
+            float* angle = &projectiles[i].angle;
+
+            *xpos += sin(*angle*DEG2RAD) * projectiles[i].velocity * deltaTime; 
+            *ypos -= cos(*angle*DEG2RAD) * projectiles[i].velocity * deltaTime; 
+
+            DrawRectangle(*xpos, *ypos, 10, 10, BLACK);
+            
+            // check for projectile collision with wall
+            if (*xpos < 0 || *xpos > screen.width || *ypos < 0 || *ypos > screen.height) {
+                projectiles[i].active = FALSE;
+                numProjectiles--;
+            }
+        }
 
     EndDrawing();
 }
 
+void ShootProjectile() {
+    ProjEntity projectile = (ProjEntity) { (Vector2){player.position.x, player.position.y}, PROJECTILESPEED, player.angle, TRUE };
+    projectiles[projEntIdx++] = projectile;
+
+    if (projEntIdx >= MAXNUMPROJECTILES)
+        projEntIdx = 0;
+}
