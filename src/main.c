@@ -37,6 +37,7 @@ typedef struct Screen {
     int width;
     int height;
     int isMenu;
+    int isSetting;
 } Screen;
 
 // -- ENUMS --
@@ -179,32 +180,34 @@ void SettingsMenu() {
         spaceshipColor = spaceshipColors[selectedColorIndex];
     }
 
-/*
-
     // Back button
-    if (GuiButton((Rectangle){ (float)screen.width / 2 - 50, 350, 100, 40 }, "Back")) {
-    return;
+    if (GuiButton((Rectangle){ pos[0], pos[1]+3*verPad, dim[0], dim[1] }, "Back")) {
+        screen.isSetting = !screen.isSetting;
     }
-*/
 
 }
 
 void Menu() {
     // @@TODO: Rectangular window with three options: Resume, Settings, Exit
     // Settings: Resolution
+    
+    if (screen.isSetting) {
+        return SettingsMenu();
+    }
 
     const char* text = "Game Paused";
     const int titleFontSize = 50;
     DrawText(text, screen.width / 2 - MeasureText(text, titleFontSize) / 2, 50, titleFontSize, DARKGRAY);
 
-    if (GuiButton((Rectangle){ (float)screen.width / 2 - 100, 150, 200, 40 }, "Resume")) {
+    if (GuiButton((Rectangle){ (float)screen.width / 2 - 100, 150, 200, 30 }, "Resume")) {
         TraceLog(LOG_INFO, "Game unpaused");
         screen.isMenu = !screen.isMenu;
     }
-    if (GuiButton((Rectangle){ (float)screen.width / 2 - 100, 200, 200, 40 }, "Settings")) {
+    if (GuiButton((Rectangle){ (float)screen.width / 2 - 100, 200, 200, 30 }, "Settings")) {
         TraceLog(LOG_INFO, "Settings");
+        screen.isSetting = !screen.isSetting;
     }
-    if (GuiButton((Rectangle){ (float)screen.width / 2 - 100, 250, 200, 40 }, "Quit")) {
+    if (GuiButton((Rectangle){ (float)screen.width / 2 - 100, 250, 200, 30 }, "Quit")) {
         TraceLog(LOG_INFO, "Quit game");
         gameShouldExit = TRUE;
     }
@@ -215,6 +218,7 @@ void Init() {
     screen.width = 1600;
     screen.height = 900;
     screen.isMenu = FALSE;
+    screen.isSetting = FALSE;
 
     // -- window definition --
     InitWindow(screen.width, screen.height, "ASTEROIDS");
@@ -243,6 +247,8 @@ void ProcessInput() {
 
     // menu
     if (IsKeyPressed(KEY_ESCAPE)) {
+        if (screen.isSetting)
+            screen.isSetting = !screen.isSetting;
         screen.isMenu = !screen.isMenu;
         return;
     }
@@ -285,8 +291,7 @@ void Draw() {
         ClearBackground(RAYWHITE);
 
         if (screen.isMenu) {
-            //Menu();
-            SettingsMenu();
+            Menu();
             EndDrawing();
             return;
         }
