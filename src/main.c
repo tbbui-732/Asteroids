@@ -71,6 +71,7 @@ void ProcessInput();
 void Draw();
 void RotateVertex(Vector2* origVector, float* centerX, float* centerY, float* angle);
 void WallCollision();
+void ShootProjectile(); 
 
 // -- DRAW -- 
 int main(void) {
@@ -291,6 +292,11 @@ void ProcessInput() {
 
     WallCollision();
     MovePlayer();
+
+    // shoot projectiles
+    if (IsKeyPressed(KEY_SPACE)) {
+       ShootProjectile(); 
+    }
 }
 
 
@@ -305,7 +311,6 @@ void Draw() {
         }
 
         // @@NOTE: debug screen for testing purposes only!
-/*
         char angleBuffer[128];
         char speedBuffer[128];
         char accelBuffer[128];
@@ -330,7 +335,6 @@ void Draw() {
         DrawText(angleBuffer, screen.width/25, screen.height/10, 50, MAROON);
         DrawText(speedBuffer, screen.width/25, screen.height/6,  50, MAROON);
         DrawText(accelBuffer, screen.width/25, screen.height/4,  50, MAROON);
-*/
 
         // draw player/ship
         DrawTriangle(player.vertices.v1, player.vertices.v2, player.vertices.v3, spaceshipColor);
@@ -338,3 +342,6 @@ void Draw() {
     EndDrawing();
 }
 
+void ShootProjectile() {
+    return;
+}
