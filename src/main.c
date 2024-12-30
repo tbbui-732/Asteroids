@@ -137,24 +137,20 @@ void MovePlayer() {
 void Menu() {
     // @@TODO: Rectangular window with three options: Resume, Settings, Exit
     // Settings: Resolution
-    //Vector2 topLeft = (Vector2) { screen.width/4.0f, screen.height/4.0f };
-    //float padding = 20.0f;
 
-    //DrawRectangle(topLeft.x, topLeft.y, screen.width/2, screen.height/2, BLACK);
-    //DrawText("Resume",      topLeft.x+padding, topLeft.y+padding,       50, WHITE);
-    //DrawText("Settings",    topLeft.x+padding, topLeft.y+padding+50,    50, WHITE);
-    //DrawText("Exit",        topLeft.x+padding, topLeft.y+padding+100,   50, WHITE);
-
-    DrawText("Main Menu", screen.width / 2 - MeasureText("Main Menu", 20) / 2, 50, 20, DARKGRAY);
+    const char* text = "Game Paused";
+    const int titleFontSize = 50;
+    DrawText(text, screen.width / 2 - MeasureText(text, titleFontSize) / 2, 50, titleFontSize, DARKGRAY);
 
     if (GuiButton((Rectangle){ (float)screen.width / 2 - 100, 150, 200, 40 }, "Resume")) {
-        TraceLog(LOG_INFO, "Option 1 Selected");
+        TraceLog(LOG_INFO, "Game unpaused");
+        screen.isMenu = !screen.isMenu;
     }
     if (GuiButton((Rectangle){ (float)screen.width / 2 - 100, 200, 200, 40 }, "Settings")) {
-        TraceLog(LOG_INFO, "Option 2 Selected");
+        TraceLog(LOG_INFO, "Settings");
     }
     if (GuiButton((Rectangle){ (float)screen.width / 2 - 100, 250, 200, 40 }, "Quit")) {
-        TraceLog(LOG_INFO, "Option 3 Selected");
+        TraceLog(LOG_INFO, "Quit game");
     }
 }
 
@@ -170,6 +166,9 @@ void Init() {
 
     // -- redefine escape key --
     SetExitKey(KEY_Q);
+
+    // -- raygui --
+    GuiSetStyle(DEFAULT, TEXT_SIZE, 30);
 
     // -- initialize player --
     InitPlayer();
