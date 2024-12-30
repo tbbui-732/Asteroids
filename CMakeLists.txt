@@ -22,5 +22,4 @@ target_link_libraries(${PROJECT_NAME} ${CMAKE_SOURCE_DIR}/lib/libraylib.a)
 
 # Include directory (Headers)
 target_include_directories(Asteroid PUBLIC 
-                    "${PROJECT_BINARY_DIR}"
-                )
+                    "${PROJECT_BINARY_DIR}")
