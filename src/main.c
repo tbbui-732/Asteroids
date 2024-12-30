@@ -14,6 +14,7 @@
 #define SHIPMAXACCELERATION     2
 #define SHIPMAXSPEED            20
 #define ROTATIONSPEED           5
+#define MAXNUMPROJECTILES       30
 #define TRUE                    1
 #define FALSE                   0
 
@@ -32,13 +33,18 @@ typedef struct Player {
     float           angle;
 } Player;
 
-
 typedef struct Screen {
     int width;
     int height;
     int isMenu;
     int isSetting;
 } Screen;
+
+typedef struct ProjEntity {
+    Vector2 position;
+    float   velocity;
+    float   angle;
+} ProjEntity;
 
 // -- ENUMS --
 enum Difficulty {
@@ -53,14 +59,18 @@ Player player;
 Screen screen;
 int gameShouldExit = FALSE;
 
+
+// settings
 int difficultySetting = EASY;
 int difficultyDropDownOpen = FALSE;
-
 float masterVolume = 1.0f;
-
-Color spaceshipColors[5] = { RED, BLACK, WHITE, MAROON, GREEN  };
+Color spaceshipColors[5] = { RED, BLACK, WHITE, MAROON, GREEN };
 Color spaceshipColor = RED;
 int selectedColorIndex = 0;
+
+// entities
+int projEntIdx = 0;
+ProjEntity projectiles[MAXNUMPROJECTILES];
 
 
 // -- FUNCTIONS -- 
@@ -339,9 +349,31 @@ void Draw() {
         // draw player/ship
         DrawTriangle(player.vertices.v1, player.vertices.v2, player.vertices.v3, spaceshipColor);
 
+        // draw projectiles
+        for (int i = 0; i < MAXNUMPROJECTILES; i++) {
+            float* xpos = &projectiles[i].position.x;
+            float* ypos = &projectiles[i].position.y;
+            DrawRectangle(*xpos, *ypos, 10, 10, BLACK);
+
+            float deltaTime = GetFrameTime() * 60;
+            *xpos += projectiles[i].velocity * deltaTime; 
+            *ypos -= projectiles[i].velocity * deltaTime; 
+
+            //RotateVertex();
+        }
+ 
     EndDrawing();
 }
 
 void ShootProjectile() {
-    return;
+    /* @@TODO
+     * Spawn a square at the player's position
+     * Give the square some velocity pointed at the player's rotation angle
+     * */
+    
+    ProjEntity projectile = (ProjEntity) { (Vector2){player.position.x, player.position.y}, 10.0f, player.angle };
+    projectiles[projEntIdx++] = projectile;
+
+    if (projEntIdx >= MAXNUMPROJECTILES)
+        projEntIdx = 0;
 }
