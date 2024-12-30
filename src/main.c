@@ -353,13 +353,13 @@ void Draw() {
         for (int i = 0; i < MAXNUMPROJECTILES; i++) {
             float* xpos = &projectiles[i].position.x;
             float* ypos = &projectiles[i].position.y;
+            float* angle = &projectiles[i].angle;
+
+            float deltaTime = GetFrameTime() * 120;
+            *xpos += sin(*angle*DEG2RAD) * projectiles[i].velocity * deltaTime; 
+            *ypos -= cos(*angle*DEG2RAD) * projectiles[i].velocity * deltaTime; 
+
             DrawRectangle(*xpos, *ypos, 10, 10, BLACK);
-
-            float deltaTime = GetFrameTime() * 60;
-            *xpos += projectiles[i].velocity * deltaTime; 
-            *ypos -= projectiles[i].velocity * deltaTime; 
-
-            //RotateVertex();
         }
  
     EndDrawing();
