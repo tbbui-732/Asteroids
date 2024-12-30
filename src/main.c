@@ -8,13 +8,14 @@
 #include "../include/raygui.h"
 
 // -- DEFINITIONS --
-#define SHIPWIDTH               50 // @@NOTE: the ship's width and height are arbitrary
-#define SHIPHEIGHT              150
-#define SHIPSPEED               10
+#define SHIPWIDTH               25 // @@NOTE: the ship's width and height are arbitrary
+#define SHIPHEIGHT              75 
+#define SHIPSPEED               5
 #define SHIPMAXACCELERATION     2
 #define SHIPMAXSPEED            20
 #define ROTATIONSPEED           5
 #define MAXNUMPROJECTILES       30
+#define PROJECTILESPEED         20 
 #define TRUE                    1
 #define FALSE                   0
 
@@ -355,7 +356,7 @@ void Draw() {
             float* ypos = &projectiles[i].position.y;
             float* angle = &projectiles[i].angle;
 
-            float deltaTime = GetFrameTime() * 120;
+            float deltaTime = GetFrameTime() * 40;
             *xpos += sin(*angle*DEG2RAD) * projectiles[i].velocity * deltaTime; 
             *ypos -= cos(*angle*DEG2RAD) * projectiles[i].velocity * deltaTime; 
 
@@ -371,7 +372,7 @@ void ShootProjectile() {
      * Give the square some velocity pointed at the player's rotation angle
      * */
     
-    ProjEntity projectile = (ProjEntity) { (Vector2){player.position.x, player.position.y}, 10.0f, player.angle };
+    ProjEntity projectile = (ProjEntity) { (Vector2){player.position.x, player.position.y}, PROJECTILESPEED, player.angle };
     projectiles[projEntIdx++] = projectile;
 
     if (projEntIdx >= MAXNUMPROJECTILES)
