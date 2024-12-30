@@ -42,6 +42,8 @@ typedef struct Screen {
 // -- GLOBAL VARIABLES -- 
 Player player;
 Screen screen;
+bool gameShouldExit = FALSE;
+
 
 // -- FUNCTIONS -- 
 void InitPlayer();
@@ -56,7 +58,7 @@ void WallCollision();
 int main(void) {
     Init();
 
-    while (!WindowShouldClose()) {
+    while (!gameShouldExit) {
         ProcessInput();
         Draw();
     }
@@ -151,6 +153,7 @@ void Menu() {
     }
     if (GuiButton((Rectangle){ (float)screen.width / 2 - 100, 250, 200, 40 }, "Quit")) {
         TraceLog(LOG_INFO, "Quit game");
+        gameShouldExit = TRUE;
     }
 }
 
@@ -175,6 +178,9 @@ void Init() {
 }
 
 void ProcessInput() {
+    if (IsKeyDown(KEY_Q))
+        gameShouldExit = TRUE;
+
     // @@NOTE: this key is for testing purposes only!!
     if (IsKeyDown(KEY_R)) {
         DrawText("RESET", 100, 100, 50, RED);
