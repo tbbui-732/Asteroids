@@ -1,6 +1,7 @@
 // -- INCLUDES --
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 #include <math.h>
 #include <string.h>
 #include "raylib.h"
@@ -55,6 +56,7 @@ typedef struct AsteroidEntity {
     Vector2 position;
     float   velocity;
     float   angle;
+    int     numVertices;
     int     active;
 } AsteroidEntity;
 
@@ -87,6 +89,7 @@ int projEntIdx = 0;
 ProjEntity projectiles[MAXNUMPROJECTILES];
 
 // asteroids (enemies)
+int astEntIdx = 0;
 AsteroidEntity asteroids[MAXNUMASTEROIDS];
 
 // -- FUNCTIONS -- 
@@ -240,6 +243,9 @@ void Menu() {
 }
 
 void Init() {
+    // -- rng --
+    srand(time(NULL));
+
     // -- screen initialization --
     screen.width = 1600;
     screen.height = 900;
@@ -269,6 +275,11 @@ void ProcessInput() {
         DrawText("RESET", 100, 100, 50, RED);
         InitPlayer();
         return;
+    }
+
+    // @@NOTE: testing purposes only; used to spawn asteroids
+    if (IsKeyDown(KEY_Y)) {
+        SpawnAsteroid();
     }
 
     // menu
@@ -406,21 +417,73 @@ void Draw() {
         }
     }
 
+    // draw asteroid
+    for (int i = 0; i < MAXNUMASTEROIDS; i++) {
+        AsteroidEntity* pAst = &asteroids[i];
+        if (!pAst->active) continue;
+        DrawRectangle(screen.width/2, screen.height/2, 200, 200, MAROON);
+    }
+
     // ----------------------------------------------------------------------------------------------------
     EndDrawing();
 }
 
 void ShootProjectile() {
-    ProjEntity projectile = (ProjEntity) { (Vector2){player.position.x, player.position.y}, PROJECTILESPEED, player.angle, TRUE };
+    ProjEntity projectile = (ProjEntity) { 
+        (Vector2){player.position.x, player.position.y}, PROJECTILESPEED, player.angle, TRUE 
+    };
     projectiles[projEntIdx++] = projectile;
 
     if (projEntIdx >= MAXNUMPROJECTILES)
         projEntIdx = 0;
 }
 
-void SpawnAsteroid() {
-    //@@NOTE: each asteroid has 12-15 vertices
-    // each vertice is randomly generated within some radius
-    // each vertice is generated in 12-15 step increments around the center
+int RandomNumberInRange(int min, int max) {
+    return min + rand() / (RAND_MAX / (max - min + 1) + 1);
+}
 
+Vector2 GenerateAsteroidSpawnPosition() {
+    float hbound = screen.width  + 300.0f;
+    float vbound = screen.height + 300.0f;
+
+    int negHorBounds[2] = { -hbound, 0 }; 
+    int negVerBounds[2] = { -vbound, 0 }; 
+    int posHorBounds[2] = { screen.width, hbound }; 
+    int posVerBounds[2] = { screen.height, vbound }; 
+        
+    int isPositive = RandomNumberInRange(0, 1);
+    int x, y;
+
+    if (isPositive) {
+        x = RandomNumberInRange(posHorBounds[0], posHorBounds[1]);
+        y = RandomNumberInRange(posVerBounds[0], posVerBounds[1]);
+    } else {
+        x = RandomNumberInRange(negHorBounds[0], negHorBounds[1]);
+        y = RandomNumberInRange(negVerBounds[0], negVerBounds[1]);
+    }
+    
+    return (Vector2) { x, y };
+}
+
+void SpawnAsteroid() {
+    //@@NOTE: each asteroid's shape is determined by the number of vertices it has
+    // each time the asteroid gets shot, it splits off into 1-2 smaller asteroids with (n-1) vertices
+    // the minimum num of vertices is 3 (triangle)
+    // each asteroid destruction yields some points
+    
+    int numVertices = RandomNumberInRange(3, 6);
+    Vector2 spawnPosition = GenerateAsteroidSpawnPosition();
+
+    AsteroidEntity asteroid = (AsteroidEntity) {
+        spawnPosition, PROJECTILESPEED, 0.0f, numVertices, TRUE
+    };
+    asteroids[astEntIdx++] = asteroid;
+    
+    if (astEntIdx >= MAXNUMASTEROIDS)
+        astEntIdx = 0;
+}
+
+//@@TODO: Logic to update current active asteriod
+void MoveAsteroid() {
+    return;
 }
