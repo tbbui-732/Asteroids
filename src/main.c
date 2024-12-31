@@ -17,7 +17,7 @@
 #define SHIPMAXSPEED            20
 #define ROTATIONSPEED           5
 #define MAXNUMPROJECTILES       30
-#define PROJECTILESPEED         20 
+#define PROJECTILESPEED         20
 #define MAXNUMASTEROIDS         10
 #define TRUE                    1
 #define FALSE                   0
@@ -102,7 +102,8 @@ void RotateVertex(Vector2* origVector, float* centerX, float* centerY, float* an
 void WallCollision();
 void ShootProjectile(); 
 void SpawnAsteroid();
-void DrawAsteroid();
+void DrawAsteroid(Vector2* pSpawnPosition, int* pNumVertices);
+void MoveAsteroid(Vector2* pSpawnPosition, float* pVelocity, float* pAngle);
 
 // -- DRAW -- 
 int main(void) {
@@ -270,17 +271,18 @@ void ProcessInput() {
     if (IsKeyDown(KEY_Q))
         gameShouldExit = TRUE;
 
-    // @@NOTE: this key is for testing purposes only!!
+    // ------- TESTING --------
+    // reset player position
     if (IsKeyDown(KEY_R)) {
         DrawText("RESET", 100, 100, 50, RED);
         InitPlayer();
         return;
     }
-
-    // @@NOTE: testing purposes only; used to spawn asteroids
-    if (IsKeyDown(KEY_Y)) {
+    // spawn an asteroid on command
+    if (IsKeyPressed(KEY_Y)) {
         SpawnAsteroid();
     }
+    // ------------------------
 
     // menu
     if (IsKeyPressed(KEY_ESCAPE)) {
@@ -304,7 +306,7 @@ void ProcessInput() {
         }
     }
 
-    // player speed @@NOTE: Why do we need to do this?
+    // player speed
     player.speed.x = sin(player.angle * DEG2RAD) * SHIPSPEED;
     player.speed.y = cos(player.angle * DEG2RAD) * SHIPSPEED;
 
@@ -421,7 +423,8 @@ void Draw() {
     for (int i = 0; i < MAXNUMASTEROIDS; i++) {
         AsteroidEntity* pAst = &asteroids[i];
         if (!pAst->active) continue;
-        DrawAsteroid();
+        DrawAsteroid(&pAst->position, &pAst->numVertices);
+        MoveAsteroid(&pAst->position, &pAst->velocity, &pAst->angle);
     }
 
     // ----------------------------------------------------------------------------------------------------
@@ -443,25 +446,63 @@ int RandomNumberInRange(int min, int max) {
 }
 
 Vector2 GenerateAsteroidSpawnPosition() {
-    float hbound = screen.width  + 300.0f;
-    float vbound = screen.height + 300.0f;
+    //float hbound = screen.width  + 300.0f;
+    //float vbound = screen.height + 300.0f;
 
-    int negHorBounds[2] = { -hbound, 0 }; 
-    int negVerBounds[2] = { -vbound, 0 }; 
-    int posHorBounds[2] = { screen.width, hbound }; 
-    int posVerBounds[2] = { screen.height, vbound }; 
-        
-    int isPositive = RandomNumberInRange(0, 1);
-    int x, y;
+    //int negHorBounds[2] = { -hbound, 0 }; 
+    //int negVerBounds[2] = { -vbound, 0 }; 
+    //int posHorBounds[2] = { screen.width, hbound }; 
+    //int posVerBounds[2] = { screen.height, vbound }; 
+    //    
+    //int isPositive = RandomNumberInRange(0, 1);
+    //int x, y;
 
-    if (isPositive) {
-        x = RandomNumberInRange(posHorBounds[0], posHorBounds[1]);
-        y = RandomNumberInRange(posVerBounds[0], posVerBounds[1]);
-    } else {
-        x = RandomNumberInRange(negHorBounds[0], negHorBounds[1]);
-        y = RandomNumberInRange(negVerBounds[0], negVerBounds[1]);
-    }
+    //if (isPositive) {
+    //    x = RandomNumberInRange(posHorBounds[0], posHorBounds[1]);
+    //    y = RandomNumberInRange(posVerBounds[0], posVerBounds[1]);
+    //} else {
+    //    x = RandomNumberInRange(negHorBounds[0], negHorBounds[1]);
+    //    y = RandomNumberInRange(negVerBounds[0], negVerBounds[1]);
+    //}
+    //
+    //return (Vector2) { x, y };
     
+
+    /*
+       - Randomly choose if the asteroid will spawn on the bot/top borders or side borders
+       - If bot/top
+            - No horizontal bounds
+       - If sides
+            - No vertical bounds
+    */
+
+    int hbound = screen.width  + 300;
+    int vbound = screen.height + 300;
+    int spawnOnSides = RandomNumberInRange(0, 1);
+
+    int x, y;
+    
+    if (spawnOnSides) {
+        int left_hbounds[2]     = { -hbound,         0 };         // no vertical bounds 
+        int right_hbounds[2]    = { screen.width,    hbound };
+        int vbounds[2]          = { -vbound,         vbound };
+        
+        x = RandomNumberInRange(0, 1) 
+            ? RandomNumberInRange(left_hbounds[0], left_hbounds[1]) 
+            : RandomNumberInRange(right_hbounds[0], right_hbounds[1]);
+        y = RandomNumberInRange(vbounds[0], vbounds[1]);
+
+    } else {
+        int top_vbounds[2]      = { -vbound,         0 };         // no horizontal bounds
+        int bot_vbounds[2]      = { screen.height,   vbound };
+        int hbounds[2]          = { -hbound,         hbound };
+        
+        x = RandomNumberInRange(hbounds[0], hbounds[1]);
+        y = RandomNumberInRange(0, 1)
+            ? RandomNumberInRange(top_vbounds[0], top_vbounds[1])
+            : RandomNumberInRange(bot_vbounds[0], bot_vbounds[1]);
+    }
+
     return (Vector2) { x, y };
 }
 
@@ -471,11 +512,13 @@ void SpawnAsteroid() {
     // the minimum num of vertices is 3 (triangle)
     // each asteroid destruction yields some points
     
+    TraceLog(LOG_INFO, "spawning new asteroid");
+
     int numVertices = RandomNumberInRange(3, 6);
     Vector2 spawnPosition = GenerateAsteroidSpawnPosition();
 
     AsteroidEntity asteroid = (AsteroidEntity) {
-        spawnPosition, PROJECTILESPEED, 0.0f, numVertices, TRUE
+        spawnPosition, PROJECTILESPEED, 45.0f, numVertices, TRUE
     };
     asteroids[astEntIdx++] = asteroid;
     
@@ -484,11 +527,44 @@ void SpawnAsteroid() {
 }
 
 //@@TODO: Logic to draw asteroid based on the number of vertices it has
-void DrawAsteroid() {
-    return;
+void DrawAsteroid(Vector2* pSpawnPosition, int* pNumVertices) {
+    float xpos = pSpawnPosition->x;
+    float ypos = pSpawnPosition->y;
+
+    float triWidth = 100.0f;
+    float triHeight = 100.0f;
+    Vector2 v1 = (Vector2) { xpos, ypos };
+    Vector2 v2 = (Vector2) { xpos-triWidth, ypos+triHeight };
+    Vector2 v3 = (Vector2) { xpos+triWidth, ypos+triHeight };
+    DrawTriangle(v1, v2, v3, MAROON);
+
+    //switch (*pNumVertices) {
+    //    case 3: {
+    //                float triWidth = 100.0f;
+    //                float triHeight = 100.0f;
+    //                Vector2 v1 = (Vector2) { xpos, ypos };
+    //                Vector2 v2 = (Vector2) { xpos-triWidth, ypos+triHeight };
+    //                Vector2 v3 = (Vector2) { xpos+triWidth, ypos+triHeight };
+    //                DrawTriangle(v1, v2, v3, MAROON);
+    //                break;
+    //            }
+    //    case 4: {
+    //                //DrawRectangle(int posX, int posY, int width, int height, Color color);
+    //                break;
+    //            }
+    //    case 5: {
+    //                //DrawPoly(Vector2 center, int sides, float radius, float rotation, Color color) ;
+    //                break;
+    //            }
+    //    case 6: {
+    //                //DrawPoly(Vector2 center, int sides, float radius, float rotation, Color color) ;
+    //                break;
+    //            }
+    //}
 }
 
 //@@TODO: Logic to update current active asteriod
-void MoveAsteroid() {
-    return;
+void MoveAsteroid(Vector2* pSpawnPosition, float* pVelocity, float* pAngle) {
+    pSpawnPosition->x += cos(*pAngle * DEG2RAD) * (*pVelocity) * deltaTime;
+    pSpawnPosition->y -= sin(*pAngle * DEG2RAD) * (*pVelocity) * deltaTime;
 }
