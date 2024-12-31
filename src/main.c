@@ -102,7 +102,7 @@ void RotateVertex(Vector2* origVector, float* centerX, float* centerY, float* an
 void WallCollision();
 void ShootProjectile(); 
 void SpawnAsteroid();
-
+void DrawAsteroid();
 
 // -- DRAW -- 
 int main(void) {
@@ -421,7 +421,7 @@ void Draw() {
     for (int i = 0; i < MAXNUMASTEROIDS; i++) {
         AsteroidEntity* pAst = &asteroids[i];
         if (!pAst->active) continue;
-        DrawRectangle(screen.width/2, screen.height/2, 200, 200, MAROON);
+        DrawAsteroid();
     }
 
     // ----------------------------------------------------------------------------------------------------
@@ -481,6 +481,11 @@ void SpawnAsteroid() {
     
     if (astEntIdx >= MAXNUMASTEROIDS)
         astEntIdx = 0;
+}
+
+//@@TODO: Logic to draw asteroid based on the number of vertices it has
+void DrawAsteroid() {
+    return;
 }
 
 //@@TODO: Logic to update current active asteriod
