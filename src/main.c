@@ -431,10 +431,11 @@ void Draw() {
 
     // draw asteroid
     for (int i = 0; i < MAXNUMASTEROIDS; i++) {
-        AsteroidEntity* pAst = &asteroids[i];
-        if (!pAst->active) continue;
-        DrawAsteroid(&pAst->position, &pAst->numVertices);
-        MoveAsteroid(&pAst->position, &pAst->velocity, &pAst->angle);
+        AsteroidEntity* pAsteriod = &asteroids[i];
+        if (!pAsteriod->active) continue;
+        DrawAsteroid(&pAsteriod->position, &pAsteriod->numVertices);
+        MoveAsteroid(&pAsteriod->position, &pAsteriod->velocity, &pAsteriod->angle);
+        AsteroidCollision(pAsteriod);
     }
 
     // ----------------------------------------------------------------------------------------------------
@@ -525,10 +526,11 @@ void SpawnAsteroid() {
     TraceLog(LOG_INFO, "spawning new asteroid");
 
     int numVertices = RandomNumberInRange(3, 6);
+    int angle = RandomNumberInRange(0, 360);
     Vector2 spawnPosition = GenerateAsteroidSpawnPosition();
 
     AsteroidEntity asteroid = (AsteroidEntity) {
-        spawnPosition, PROJECTILESPEED, 45.0f, numVertices, TRUE
+        spawnPosition, PROJECTILESPEED, angle, numVertices, TRUE
     };
     asteroids[astEntIdx++] = asteroid;
     
@@ -577,4 +579,17 @@ void DrawAsteroid(Vector2* pSpawnPosition, int* pNumVertices) {
 void MoveAsteroid(Vector2* pSpawnPosition, float* pVelocity, float* pAngle) {
     pSpawnPosition->x += cos(*pAngle * DEG2RAD) * (*pVelocity) * deltaTime;
     pSpawnPosition->y -= sin(*pAngle * DEG2RAD) * (*pVelocity) * deltaTime;
+}
+
+void AsteroidCollision(AsteroidEntity* pAsteroid) {
+    int hbound = screen.width  + 300;
+    int vbound = screen.height + 300;
+    
+    float xpos = (pAsteroid->position).x;
+    float ypos = (pAsteroid->position).y;
+
+    if (xpos < -hbound || xpos > hbound || ypos < -vbound || ypos > vbound) {
+        numAsteroids--;
+        pAsteroid->active = FALSE; 
+    }
 }
