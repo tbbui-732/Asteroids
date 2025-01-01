@@ -73,7 +73,6 @@ Player player;
 Screen screen;
 int gameShouldExit = FALSE;
 float deltaTime;
-int numProjectiles = 0;
 
 // settings
 int difficultySetting = EASY;
@@ -87,10 +86,12 @@ int selectedColorIndex = 0;
 // projectiles
 int projEntIdx = 0;
 ProjEntity projectiles[MAXNUMPROJECTILES];
+int numProjectiles = 0;
 
 // asteroids (enemies)
 int astEntIdx = 0;
 AsteroidEntity asteroids[MAXNUMASTEROIDS];
+int numAsteroids = 0;
 
 // -- FUNCTIONS -- 
 void InitPlayer();
@@ -104,6 +105,7 @@ void ShootProjectile();
 void SpawnAsteroid();
 void DrawAsteroid(Vector2* pSpawnPosition, int* pNumVertices);
 void MoveAsteroid(Vector2* pSpawnPosition, float* pVelocity, float* pAngle);
+void AsteroidCollision(AsteroidEntity* pAsteroid);
 
 // -- DRAW -- 
 int main(void) {
@@ -280,6 +282,7 @@ void ProcessInput() {
     }
     // spawn an asteroid on command
     if (IsKeyPressed(KEY_Y)) {
+        numAsteroids++;
         SpawnAsteroid();
     }
     // ------------------------
@@ -358,6 +361,7 @@ void Draw() {
     char accelBuffer[128];
     char fpsBuffer[128];
     char numProjectBuffer[128];
+    char numAsteroidBuffer[128];
 
     int out;
     out = snprintf(angleBuffer, 128, "angle (degrees):\t%.0f", player.angle);
@@ -385,6 +389,11 @@ void Draw() {
         printf("ERROR: Unable to pass FPS value to buffer\n");
         exit(1);
     }
+    out = snprintf(numAsteroidBuffer, 128, "num asteroids:\t%d", numAsteroids);
+    if (out <= -1) {
+        printf("ERROR: Unable to pass number of asteroids value to buffer\n");
+        exit(1);
+    }
 
     int xpos = screen.width/25;
     int ypos = screen.width/25;
@@ -395,6 +404,7 @@ void Draw() {
     GuiLabel((Rectangle){ xpos, 200, 350, 40 }, accelBuffer);
     GuiLabel((Rectangle){ xpos, 250, 350, 40 }, fpsBuffer);
     GuiLabel((Rectangle){ xpos, 300, 350, 40 }, numProjectBuffer);
+    GuiLabel((Rectangle){ xpos, 350, 350, 40 }, numAsteroidBuffer);
 
     // draw player/ship
     DrawTriangle(player.vertices.v1, player.vertices.v2, player.vertices.v3, spaceshipColor);
