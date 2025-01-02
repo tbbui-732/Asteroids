@@ -469,8 +469,8 @@ void Draw() {
     for (int i = 0; i < MAXNUMASTEROIDS; i++) {
         AsteroidEntity* pAsteriod = &asteroids[i];
         if (!pAsteriod->active) continue;
-        AsteroidDraw(pAsteroid);
-        AsteroidMove(pAsteroid);
+        AsteroidDraw(pAsteriod);
+        AsteroidMove(pAsteriod);
         AsteroidWallCollision(pAsteriod);
     }
 
