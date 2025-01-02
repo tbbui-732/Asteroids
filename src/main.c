@@ -115,19 +115,6 @@ int numAsteroids = 0;
 // --------------- 
 // -- FUNCTIONS -- 
 // --------------- 
-//void PlayerMove();
-//void Init();
-//void ProcessInput();
-//void Draw();
-//void PlayerRotate(Vector2* origVector, float* centerX, float* centerY, float* angle);
-//void PlayerWallCollision();
-//void PlayerShootProjectile(); 
-//void AsteroidSpawn();
-//void AsteroidDraw(Vector2* pSpawnPosition, int* pNumVertices);
-//void AsteroidMove(Vector2* pSpawnPosition, float* pVelocity, float* pAngle);
-//void AsteroidWallCollision(AsteroidEntity* pAsteroid);
-//Vector2 AsteroidGenerateSpawnPosition(int spawnOnSides);
-
 void SettingsMenu();
 void Menu();
 void PlayerWallCollision();
