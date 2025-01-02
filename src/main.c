@@ -524,13 +524,15 @@ void AsteroidSpawn() {
 
     asteroid.position = AsteroidGenerateSpawnPosition();
     asteroid.velocity = 10.0f; // TODO: set this to a global value
-
-    //@@TODO: Determine asteroid angle (not just any random value !!!)
-    asteroid.angle = GetRandomValue(0, 360);
-
     asteroid.numVertices = GetRandomValue(3, 6);
     asteroid.active = TRUE;
     asteroid.size = REGULAR;
+
+    //@@TODO: Determine asteroid angle (not just any random value !!!)
+    Vector2 direction;
+    direction = Vector2Subtract(player.position, asteroid.position);
+    direction = Vector2Normalize(direction);
+    asteroid.angle = atan2(direction.y, direction.x);
 
     // Add asteroids to array
     asteroids[astEntIdx++] = asteroid;
@@ -545,8 +547,8 @@ void AsteroidDraw(AsteroidEntity* pAsteroid) {
 }
 
 void AsteroidMove(AsteroidEntity* pAsteroid) {
-    pAsteroid->position.x += cos( pAsteroid->angle * DEG2RAD ) * pAsteroid->velocity * deltaTime; 
-    pAsteroid->position.y -= sin( pAsteroid->angle * DEG2RAD ) * pAsteroid->velocity * deltaTime; 
+    pAsteroid->position.x += cos( pAsteroid->angle ) * pAsteroid->velocity * deltaTime; // NOTE: asteroid.angle is already a RADIAN
+    pAsteroid->position.y -= sin( pAsteroid->angle ) * pAsteroid->velocity * deltaTime; 
 }
 
 int AsteroidWallCollision(AsteroidEntity* pAsteroid) {
