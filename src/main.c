@@ -136,7 +136,7 @@ void PlayerRotate(Vector2* origVector, float* centerX, float* centerY, float* an
 void PlayerMove();
 void ProcessInput();
 void Draw();
-Vector2 AsteroidGenerateSpawnPosition(int spawnOnSides);
+Vector2 AsteroidGenerateSpawnPosition();
 void AsteroidSpawn();
 void AsteroidDraw(Vector2* pSpawnPosition, int* pNumVertices);
 void AsteroidMove(Vector2* pSpawnPosition, float* pVelocity, float* pAngle);
@@ -495,12 +495,13 @@ void Draw() {
 // ----------------------------------------------------------------------------
 // ------------------------------ ASTEROID LOGIC ------------------------------
 // ----------------------------------------------------------------------------
-Vector2 AsteroidGenerateSpawnPosition(int spawnOnSides) {
+Vector2 AsteroidGenerateSpawnPosition() {
+    float x, y;
+
     float hbound = (float)screen.width  + 300.0f;
     float vbound = (float)screen.height + 300.0f;
 
-    float x, y;
-    
+    int spawnOnSides = GetRandomValue(0, 1);
     if (spawnOnSides == TRUE) {
         int left_hbounds[2]     = { -hbound,         0.0f };         // no vertical bounds 
         int right_hbounds[2]    = { screen.width,    hbound };
@@ -520,37 +521,25 @@ Vector2 AsteroidGenerateSpawnPosition(int spawnOnSides) {
             ? GetRandomValue(top_vbounds[0], top_vbounds[1])
             : GetRandomValue(bot_vbounds[0], bot_vbounds[1]);
     }
-
+    
     return (Vector2) { x, y };
 }
 
 void AsteroidSpawn() {
-    //@@NOTE: each asteroid's shape is determined by the number of vertices it has
-    // each time the asteroid gets shot, it splits off into 1-2 smaller asteroids with (n-1) vertices
-    // the minimum num of vertices is 3 (triangle)
-    // each asteroid destruction yields some points
-    
-    int numVertices = GetRandomValue(3, 6);
+    AsteroidEntity asteroid;
 
-    int spawnOnSides = GetRandomValue(0, 1) ? TRUE : FALSE;
-    Vector2 spawnPosition = AsteroidGenerateSpawnPosition(spawnOnSides);
+    asteroid.position = AsteroidGenerateSpawnPosition();
+    asteroid.velocity = 10.0f; // TODO: set this to a global value
 
-    //@@TODO: The angle should point towards the game screen
-    Vector2 screenCenter = (Vector2) { screen.width/2.0f, screen.height/2.0f };
-    Vector2 direction = Vector2Subtract(screenCenter, spawnPosition);
-    direction = Vector2Normalize(direction);
+    //@@TODO: Determine asteroid angle (not just any random value !!!)
+    asteroid.angle = GetRandomValue(0, 360);
 
-    float angle = atan2(direction.y, direction.x) * (180.0f / PI);
+    asteroid.numVertices = GetRandomValue(3, 6);
+    asteroid.active = TRUE;
+    asteroid.size = REGULAR;
 
-    if (angle < 0) {
-        angle += 360.0f;
-    }
-
-    AsteroidEntity asteroid = (AsteroidEntity) {
-        spawnPosition, PROJECTILESPEED, angle, numVertices, TRUE
-    };
+    // Add asteroids to array
     asteroids[astEntIdx++] = asteroid;
-    
     if (astEntIdx >= MAXNUMASTEROIDS)
         astEntIdx = 0;
 }
