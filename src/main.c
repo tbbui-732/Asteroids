@@ -220,7 +220,6 @@ void SettingsMenu() {
 }
 
 void Menu() {
-    // @@TODO: Rectangular window with three options: Resume, Settings, Exit
     // Settings: Resolution
 
     if (screen.isSetting) {
@@ -538,7 +537,6 @@ void SpawnAsteroid() {
         astEntIdx = 0;
 }
 
-//@@TODO: Logic to draw asteroid based on the number of vertices it has
 void DrawAsteroid(Vector2* pSpawnPosition, int* pNumVertices) {
     float xpos = pSpawnPosition->x;
     float ypos = pSpawnPosition->y;
@@ -575,7 +573,6 @@ void DrawAsteroid(Vector2* pSpawnPosition, int* pNumVertices) {
     //}
 }
 
-//@@TODO: Logic to update current active asteriod
 void MoveAsteroid(Vector2* pSpawnPosition, float* pVelocity, float* pAngle) {
     pSpawnPosition->x += cos(*pAngle * DEG2RAD) * (*pVelocity) * deltaTime;
     pSpawnPosition->y -= sin(*pAngle * DEG2RAD) * (*pVelocity) * deltaTime;
