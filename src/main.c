@@ -113,8 +113,7 @@ int main(void) {
     // --------------------------------
     // ---------- INITIALIZE ----------
     // --------------------------------
-    // rng
-    srand(time(NULL));
+    srand(time(NULL)); // rng
 
     // screen initialization
     screen.width = 1600;
@@ -134,7 +133,6 @@ int main(void) {
 
     // initialize player
     player.position         = (Vector2) {screen.width/2.0f, screen.height/2.0f};
-    MovePlayer();
     player.speed            = (Vector2) {0.0f, 0.0f};
     player.acceleration     =  0.0f;
     player.angle            =  0.0f;
