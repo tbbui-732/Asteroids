@@ -127,7 +127,7 @@ Vector2 AsteroidGenerateSpawnPosition();
 void AsteroidSpawn();
 void AsteroidDraw(AsteroidEntity* pAsteroid);
 void AsteroidMove(AsteroidEntity* pAsteroid);
-void AsteroidWallCollision(AsteroidEntity* pAsteroid);
+int AsteroidWallCollision(AsteroidEntity* pAsteroid);
 
 // ---------- 
 // -- DRAW -- 
@@ -467,11 +467,18 @@ void Draw() {
 
     // draw asteroid
     for (int i = 0; i < MAXNUMASTEROIDS; i++) {
-        AsteroidEntity* pAsteriod = &asteroids[i];
-        if (!pAsteriod->active) continue;
-        AsteroidDraw(pAsteriod);
-        AsteroidMove(pAsteriod);
-        AsteroidWallCollision(pAsteriod);
+        AsteroidEntity* pAsteroid = &asteroids[i];
+
+        if (!pAsteroid->active) 
+            continue;
+
+        AsteroidDraw(pAsteroid);
+        AsteroidMove(pAsteroid);
+
+        if (AsteroidWallCollision(pAsteroid)) {
+            numAsteroids--;
+            pAsteroid->active = FALSE; 
+        }
     }
 
     EndDrawing();
@@ -542,7 +549,7 @@ void AsteroidMove(AsteroidEntity* pAsteroid) {
     pAsteroid->position.y -= sin( pAsteroid->angle * DEG2RAD ) * pAsteroid->velocity * deltaTime; 
 }
 
-void AsteroidWallCollision(AsteroidEntity* pAsteroid) {
+int AsteroidWallCollision(AsteroidEntity* pAsteroid) {
     int hbound = screen.width  + 300;
     int vbound = screen.height + 300;
     
@@ -550,8 +557,8 @@ void AsteroidWallCollision(AsteroidEntity* pAsteroid) {
     float ypos = (pAsteroid->position).y;
 
     if (xpos < -hbound || xpos > hbound || ypos < -vbound || ypos > vbound) {
-        numAsteroids--;
-        pAsteroid->active = FALSE; 
+        return TRUE;
     }
+    return FALSE;
 }
 // ----------------------------------------------------------------------------
