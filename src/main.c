@@ -27,6 +27,22 @@
 #define TRUE                    1
 #define FALSE                   0
 
+// -----------
+// -- ENUMS --
+// -----------
+enum Difficulty {
+    EASY,
+    MEDIUM,
+    HARD,
+    NDIFFICULTIES
+};
+
+enum Size {
+    SMALL,
+    REGULAR,
+    LARGE
+};
+
 // -------------
 // -- STRUCTS --
 // -------------
@@ -59,22 +75,13 @@ typedef struct ProjEntity {
 } ProjEntity;
 
 typedef struct AsteroidEntity {
-    Vector2 position;
-    float   velocity;
-    float   angle;
-    int     numVertices;
-    int     active;
+    Vector2     position;
+    float       velocity;
+    float       angle;
+    int         numVertices;
+    int         active;
+    enum Size   size;    
 } AsteroidEntity;
-
-// -----------
-// -- ENUMS --
-// -----------
-enum Difficulty {
-    EASY,
-    MEDIUM,
-    HARD,
-    NDIFFICULTIES
-};
 
 // ---------------------- 
 // -- GLOBAL VARIABLES -- 
@@ -108,18 +115,32 @@ int numAsteroids = 0;
 // --------------- 
 // -- FUNCTIONS -- 
 // --------------- 
+//void PlayerMove();
+//void Init();
+//void ProcessInput();
+//void Draw();
+//void PlayerRotate(Vector2* origVector, float* centerX, float* centerY, float* angle);
+//void PlayerWallCollision();
+//void PlayerShootProjectile(); 
+//void AsteroidSpawn();
+//void AsteroidDraw(Vector2* pSpawnPosition, int* pNumVertices);
+//void AsteroidMove(Vector2* pSpawnPosition, float* pVelocity, float* pAngle);
+//void AsteroidWallCollision(AsteroidEntity* pAsteroid);
+//Vector2 AsteroidGenerateSpawnPosition(int spawnOnSides);
+
+void SettingsMenu();
+void Menu();
+void PlayerWallCollision();
+void PlayerShootProjectile();
+void PlayerRotate(Vector2* origVector, float* centerX, float* centerY, float* angle);
 void PlayerMove();
-void Init();
 void ProcessInput();
 void Draw();
-void PlayerRotate(Vector2* origVector, float* centerX, float* centerY, float* angle);
-void PlayerWallCollision();
-void PlayerShootProjectile(); 
+Vector2 AsteroidGenerateSpawnPosition(int spawnOnSides);
 void AsteroidSpawn();
 void AsteroidDraw(Vector2* pSpawnPosition, int* pNumVertices);
 void AsteroidMove(Vector2* pSpawnPosition, float* pVelocity, float* pAngle);
 void AsteroidWallCollision(AsteroidEntity* pAsteroid);
-Vector2 AsteroidGenerateSpawnPosition(int spawnOnSides);
 
 // ---------- 
 // -- DRAW -- 
@@ -537,37 +558,7 @@ void AsteroidSpawn() {
 void AsteroidDraw(Vector2* pSpawnPosition, int* pNumVertices) {
     float xpos = pSpawnPosition->x;
     float ypos = pSpawnPosition->y;
-
-    float triWidth = 100.0f;
-    float triHeight = 100.0f;
-    Vector2 v1 = (Vector2) { xpos, ypos };
-    Vector2 v2 = (Vector2) { xpos-triWidth, ypos+triHeight };
-    Vector2 v3 = (Vector2) { xpos+triWidth, ypos+triHeight };
-    DrawTriangle(v1, v2, v3, MAROON);
-
-    //switch (*pNumVertices) {
-    //    case 3: {
-    //                float triWidth = 100.0f;
-    //                float triHeight = 100.0f;
-    //                Vector2 v1 = (Vector2) { xpos, ypos };
-    //                Vector2 v2 = (Vector2) { xpos-triWidth, ypos+triHeight };
-    //                Vector2 v3 = (Vector2) { xpos+triWidth, ypos+triHeight };
-    //                DrawTriangle(v1, v2, v3, MAROON);
-    //                break;
-    //            }
-    //    case 4: {
-    //                //DrawRectangle(int posX, int posY, int width, int height, Color color);
-    //                break;
-    //            }
-    //    case 5: {
-    //                //DrawPoly(Vector2 center, int sides, float radius, float rotation, Color color) ;
-    //                break;
-    //            }
-    //    case 6: {
-    //                //DrawPoly(Vector2 center, int sides, float radius, float rotation, Color color) ;
-    //                break;
-    //            }
-    //}
+    DrawCircle(xpos, ypos, 150.0f, BLACK);
 }
 
 void AsteroidMove(Vector2* pSpawnPosition, float* pVelocity, float* pAngle) {
