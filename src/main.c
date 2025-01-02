@@ -125,8 +125,8 @@ void ProcessInput();
 void Draw();
 Vector2 AsteroidGenerateSpawnPosition();
 void AsteroidSpawn();
-void AsteroidDraw(Vector2* pSpawnPosition, int* pNumVertices);
-void AsteroidMove(Vector2* pSpawnPosition, float* pVelocity, float* pAngle);
+void AsteroidDraw(AsteroidEntity* pAsteroid);
+void AsteroidMove(AsteroidEntity* pAsteroid);
 void AsteroidWallCollision(AsteroidEntity* pAsteroid);
 
 // ---------- 
@@ -469,8 +469,8 @@ void Draw() {
     for (int i = 0; i < MAXNUMASTEROIDS; i++) {
         AsteroidEntity* pAsteriod = &asteroids[i];
         if (!pAsteriod->active) continue;
-        AsteroidDraw(&pAsteriod->position, &pAsteriod->numVertices);
-        AsteroidMove(&pAsteriod->position, &pAsteriod->velocity, &pAsteriod->angle);
+        AsteroidDraw(pAsteroid);
+        AsteroidMove(pAsteroid);
         AsteroidWallCollision(pAsteriod);
     }
 
@@ -531,15 +531,15 @@ void AsteroidSpawn() {
         astEntIdx = 0;
 }
 
-void AsteroidDraw(Vector2* pSpawnPosition, int* pNumVertices) {
-    float xpos = pSpawnPosition->x;
-    float ypos = pSpawnPosition->y;
+void AsteroidDraw(AsteroidEntity* pAsteroid) {
+    float xpos = pAsteroid->position.x;
+    float ypos = pAsteroid->position.y;
     DrawCircle(xpos, ypos, 150.0f, BLACK);
 }
 
-void AsteroidMove(Vector2* pSpawnPosition, float* pVelocity, float* pAngle) {
-    pSpawnPosition->x += cos(*pAngle * DEG2RAD) * (*pVelocity) * deltaTime;
-    pSpawnPosition->y -= sin(*pAngle * DEG2RAD) * (*pVelocity) * deltaTime;
+void AsteroidMove(AsteroidEntity* pAsteroid) {
+    pAsteroid->position.x += cos( pAsteroid->angle * DEG2RAD ) * pAsteroid->velocity * deltaTime; 
+    pAsteroid->position.y -= sin( pAsteroid->angle * DEG2RAD ) * pAsteroid->velocity * deltaTime; 
 }
 
 void AsteroidWallCollision(AsteroidEntity* pAsteroid) {
