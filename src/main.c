@@ -1,4 +1,6 @@
+// --------------
 // -- INCLUDES --
+// --------------
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -10,7 +12,9 @@
 #define RAYGUI_IMPLEMENTATION
 #include "../include/raygui.h"
 
+// -----------------
 // -- DEFINITIONS --
+// -----------------
 #define SHIPWIDTH               25 // @@NOTE: the ship's width and height are arbitrary
 #define SHIPHEIGHT              75 
 #define SHIPSPEED               5
@@ -23,7 +27,9 @@
 #define TRUE                    1
 #define FALSE                   0
 
+// -------------
 // -- STRUCTS --
+// -------------
 typedef struct PlayerVertices {
     Vector2 v1;
     Vector2 v2;
@@ -45,7 +51,6 @@ typedef struct Screen {
     int isSetting;
 } Screen;
 
-//@@NOTE: consider for refactoring
 typedef struct ProjEntity {
     Vector2 position;
     float   velocity;
@@ -61,7 +66,9 @@ typedef struct AsteroidEntity {
     int     active;
 } AsteroidEntity;
 
+// -----------
 // -- ENUMS --
+// -----------
 enum Difficulty {
     EASY,
     MEDIUM,
@@ -69,7 +76,9 @@ enum Difficulty {
     NDIFFICULTIES
 };
 
+// ---------------------- 
 // -- GLOBAL VARIABLES -- 
+// ---------------------- 
 Player player;
 Screen screen;
 int gameShouldExit = FALSE;
@@ -83,7 +92,9 @@ Color spaceshipColors[5] = { RED, BLACK, WHITE, MAROON, GREEN };
 Color spaceshipColor = RED;
 int selectedColorIndex = 0;
 
+// --------------
 // -- ENTITIES --
+// --------------
 // projectiles
 int projEntIdx = 0;
 ProjEntity projectiles[MAXNUMPROJECTILES];
@@ -94,21 +105,25 @@ int astEntIdx = 0;
 AsteroidEntity asteroids[MAXNUMASTEROIDS];
 int numAsteroids = 0;
 
+// --------------- 
 // -- FUNCTIONS -- 
-void MovePlayer();
+// --------------- 
+void PlayerMove();
 void Init();
 void ProcessInput();
 void Draw();
-void RotateVertex(Vector2* origVector, float* centerX, float* centerY, float* angle);
-void WallCollision();
-void ShootProjectile(); 
-void SpawnAsteroid();
-void DrawAsteroid(Vector2* pSpawnPosition, int* pNumVertices);
-void MoveAsteroid(Vector2* pSpawnPosition, float* pVelocity, float* pAngle);
-void AsteroidCollision(AsteroidEntity* pAsteroid);
-Vector2 GenerateAsteroidSpawnPosition(int spawnOnSides);
+void PlayerRotate(Vector2* origVector, float* centerX, float* centerY, float* angle);
+void PlayerWallCollision();
+void PlayerShootProjectile(); 
+void AsteroidSpawn();
+void AsteroidDraw(Vector2* pSpawnPosition, int* pNumVertices);
+void AsteroidMove(Vector2* pSpawnPosition, float* pVelocity, float* pAngle);
+void AsteroidWallCollision(AsteroidEntity* pAsteroid);
+Vector2 AsteroidGenerateSpawnPosition(int spawnOnSides);
 
+// ---------- 
 // -- DRAW -- 
+// ---------- 
 int main(void) {
     // --------------------------------
     // ---------- INITIALIZE ----------
@@ -148,12 +163,9 @@ int main(void) {
     return 0;
 }
 
-
-// -----------------------------------
-// ----- FUNCTION IMPLEMENTATION -----
-// -----------------------------------
-
+// -------------------------------------------------------------------------------------
 // ------------------------------ MENU / PAUSE / SETTINGS ------------------------------
+// -------------------------------------------------------------------------------------
 void SettingsMenu() {
     int pos[2] = { 150, 100 };
     int dim[2] = { 200, 30 };
@@ -187,8 +199,6 @@ void SettingsMenu() {
 }
 
 void Menu() {
-    // Settings: Resolution
-
     if (screen.isSetting) {
         return SettingsMenu();
     }
@@ -213,8 +223,10 @@ void Menu() {
 // -------------------------------------------------------------------------------------
 
 
+// ---------------------------------------------------------------------------------
 // ------------------------------ PLAYER / SHIP LOGIC ------------------------------
-void WallCollision() {
+// ---------------------------------------------------------------------------------
+void PlayerWallCollision() {
     // @@NOTE: Invoked every time player position is updated
     // check left and right walls
     float verticalPad   = SHIPHEIGHT*1.15f;
@@ -235,7 +247,7 @@ void WallCollision() {
         player.position.y = 0.0f + verticalSmoothingPad;
 }
 
-void ShootProjectile() {
+void PlayerShootProjectile() {
     ProjEntity projectile = (ProjEntity) { 
         (Vector2){player.position.x, player.position.y}, PROJECTILESPEED, player.angle, TRUE 
     };
@@ -245,7 +257,7 @@ void ShootProjectile() {
         projEntIdx = 0;
 }
 
-void RotateVertex(Vector2* origVector, float* centerX, float* centerY, float* angle) {
+void PlayerRotate(Vector2* origVector, float* centerX, float* centerY, float* angle) {
     // translate to origin 
     float tx, ty;
     tx = origVector->x - *centerX;
@@ -262,7 +274,7 @@ void RotateVertex(Vector2* origVector, float* centerX, float* centerY, float* an
     origVector->y = ry + *centerY;
 }
 
-void MovePlayer() {
+void PlayerMove() {
     float angle = player.angle;
     float centerX = player.position.x;
     float centerY = player.position.y;
@@ -273,9 +285,9 @@ void MovePlayer() {
     Vector2 v3 = (Vector2) { centerX + SHIPWIDTH, centerY + SHIPHEIGHT/2.0f };
 
     // rotate them around
-    RotateVertex(&v1, &centerX, &centerY, &angle);
-    RotateVertex(&v2, &centerX, &centerY, &angle);
-    RotateVertex(&v3, &centerX, &centerY, &angle);
+    PlayerRotate(&v1, &centerX, &centerY, &angle);
+    PlayerRotate(&v2, &centerX, &centerY, &angle);
+    PlayerRotate(&v3, &centerX, &centerY, &angle);
 
     // apply vertices
     player.vertices.v1 = v1;
@@ -285,7 +297,9 @@ void MovePlayer() {
 // ---------------------------------------------------------------------------------
 
 
+// ----------------------------------------------------------------------------
 // ------------------------------ KEYBOARD INPUT ------------------------------
+// ----------------------------------------------------------------------------
 void ProcessInput() {
     if (IsKeyDown(KEY_Q))
         gameShouldExit = TRUE;
@@ -294,7 +308,7 @@ void ProcessInput() {
     // spawn an asteroid on command
     if (IsKeyPressed(KEY_Y)) {
         numAsteroids++;
-        SpawnAsteroid();
+        AsteroidSpawn();
     }
     // ------------------------
 
@@ -341,19 +355,21 @@ void ProcessInput() {
     player.position.x += player.speed.x * player.acceleration * deltaTime;
     player.position.y -= player.speed.y * player.acceleration * deltaTime;
 
-    WallCollision();
-    MovePlayer();
+    PlayerWallCollision();
+    PlayerMove();
 
     // shoot projectiles
     if (IsKeyPressed(KEY_SPACE)) {
         numProjectiles++;
-        ShootProjectile(); 
+        PlayerShootProjectile(); 
     }
 }
 // ----------------------------------------------------------------------------
 
 
+// ------------------------------------------------------------------
 // ------------------------------ DRAW ------------------------------
+// ------------------------------------------------------------------
 void Draw() {
     BeginDrawing();
 
@@ -445,9 +461,9 @@ void Draw() {
     for (int i = 0; i < MAXNUMASTEROIDS; i++) {
         AsteroidEntity* pAsteriod = &asteroids[i];
         if (!pAsteriod->active) continue;
-        DrawAsteroid(&pAsteriod->position, &pAsteriod->numVertices);
-        MoveAsteroid(&pAsteriod->position, &pAsteriod->velocity, &pAsteriod->angle);
-        AsteroidCollision(pAsteriod);
+        AsteroidDraw(&pAsteriod->position, &pAsteriod->numVertices);
+        AsteroidMove(&pAsteriod->position, &pAsteriod->velocity, &pAsteriod->angle);
+        AsteroidWallCollision(pAsteriod);
     }
 
     EndDrawing();
@@ -455,8 +471,10 @@ void Draw() {
 // ------------------------------------------------------------------
 
 
+// ----------------------------------------------------------------------------
 // ------------------------------ ASTEROID LOGIC ------------------------------
-Vector2 GenerateAsteroidSpawnPosition(int spawnOnSides) {
+// ----------------------------------------------------------------------------
+Vector2 AsteroidGenerateSpawnPosition(int spawnOnSides) {
     float hbound = (float)screen.width  + 300.0f;
     float vbound = (float)screen.height + 300.0f;
 
@@ -485,7 +503,7 @@ Vector2 GenerateAsteroidSpawnPosition(int spawnOnSides) {
     return (Vector2) { x, y };
 }
 
-void SpawnAsteroid() {
+void AsteroidSpawn() {
     //@@NOTE: each asteroid's shape is determined by the number of vertices it has
     // each time the asteroid gets shot, it splits off into 1-2 smaller asteroids with (n-1) vertices
     // the minimum num of vertices is 3 (triangle)
@@ -494,7 +512,7 @@ void SpawnAsteroid() {
     int numVertices = GetRandomValue(3, 6);
 
     int spawnOnSides = GetRandomValue(0, 1) ? TRUE : FALSE;
-    Vector2 spawnPosition = GenerateAsteroidSpawnPosition(spawnOnSides);
+    Vector2 spawnPosition = AsteroidGenerateSpawnPosition(spawnOnSides);
 
     //@@TODO: The angle should point towards the game screen
     Vector2 screenCenter = (Vector2) { screen.width/2.0f, screen.height/2.0f };
@@ -516,7 +534,7 @@ void SpawnAsteroid() {
         astEntIdx = 0;
 }
 
-void DrawAsteroid(Vector2* pSpawnPosition, int* pNumVertices) {
+void AsteroidDraw(Vector2* pSpawnPosition, int* pNumVertices) {
     float xpos = pSpawnPosition->x;
     float ypos = pSpawnPosition->y;
 
@@ -552,12 +570,12 @@ void DrawAsteroid(Vector2* pSpawnPosition, int* pNumVertices) {
     //}
 }
 
-void MoveAsteroid(Vector2* pSpawnPosition, float* pVelocity, float* pAngle) {
+void AsteroidMove(Vector2* pSpawnPosition, float* pVelocity, float* pAngle) {
     pSpawnPosition->x += cos(*pAngle * DEG2RAD) * (*pVelocity) * deltaTime;
     pSpawnPosition->y -= sin(*pAngle * DEG2RAD) * (*pVelocity) * deltaTime;
 }
 
-void AsteroidCollision(AsteroidEntity* pAsteroid) {
+void AsteroidWallCollision(AsteroidEntity* pAsteroid) {
     int hbound = screen.width  + 300;
     int vbound = screen.height + 300;
     
