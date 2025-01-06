@@ -491,31 +491,17 @@ void Draw() {
 // ----------------------------------------------------------------------------
 Vector2 AsteroidGenerateSpawnPosition() {
     float x, y;
-
-    float hbound = (float)screen.width  + 300.0f;
-    float vbound = (float)screen.height + 300.0f;
-
-    int spawnOnSides = GetRandomValue(0, 1);
-    if (spawnOnSides == TRUE) {
-        int left_hbounds[2]     = { -hbound,         0.0f };         // no vertical bounds 
-        int right_hbounds[2]    = { screen.width,    hbound };
-        int vbounds[2]          = { -vbound,         vbound };
-        
+    if (GetRandomValue(0, 1)) {
         x = GetRandomValue(0, 1) 
-            ? GetRandomValue(left_hbounds[0], left_hbounds[1]) 
-            : GetRandomValue(right_hbounds[0], right_hbounds[1]);
-        y = GetRandomValue(vbounds[0], vbounds[1]);
+            ? -300.0f
+            : screen.width + 300.0f;
+        y = GetRandomValue(-300.0f, screen.height + 300.0f);
     } else {
-        int top_vbounds[2]      = { -vbound,         0.0f };         // no horizontal bounds
-        int bot_vbounds[2]      = { screen.height,   vbound };
-        int hbounds[2]          = { -hbound,         hbound };
-        
-        x = GetRandomValue(hbounds[0], hbounds[1]);
+        x = GetRandomValue(-300.0f, screen.width + 300.0f);
         y = GetRandomValue(0, 1)
-            ? GetRandomValue(top_vbounds[0], top_vbounds[1])
-            : GetRandomValue(bot_vbounds[0], bot_vbounds[1]);
+            ? -300.0f
+            : screen.height + 300.0f;
     }
-    
     return (Vector2) { x, y };
 }
 
